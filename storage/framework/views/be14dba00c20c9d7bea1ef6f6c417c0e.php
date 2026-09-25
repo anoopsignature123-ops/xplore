@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Builder & Contractor Portal | Login</title>
+      <link rel="stylesheet" href="<?php echo e(asset('assets/admin/css/fontawesome-min.css')); ?>">
+      <link rel="stylesheet" href="<?php echo e(asset('assets/admin/css/style.css')); ?>">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+   </head>
+   <body class="bg-light d-flex align-items-center justify-content-center min-vh-100 py-5">
+      <div class="container" style="max-width: 450px;">
+         <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-body p-4 p-sm-5">
+               <div class="text-center mb-4">
+                  <h3 class="fw-bold text-primary">Builder Portal</h3>
+                  <p class="text-muted">Architects & Construction Professionals</p>
+               </div>
+
+               <?php if(session('error')): ?>
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                     <?php echo e(session('error')); ?>
+
+                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                  </div>
+               <?php endif; ?>
+
+               <?php if(session('success')): ?>
+                  <div class="alert alert-success alert-dismissible fade show" role="alert">
+                     <?php echo e(session('success')); ?>
+
+                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                  </div>
+               <?php endif; ?>
+
+               <form action="<?php echo e(route('builder.checkLogin')); ?>" method="POST">
+                  <?php echo csrf_field(); ?>
+                  <div class="mb-3">
+                     <label class="form-label fw-bold">Email Address</label>
+                     <input type="email" name="email" class="form-control" placeholder="info@skylinearchitects.com" value="<?php echo e(old('email')); ?>" required autofocus>
+                  </div>
+
+                  <div class="mb-3">
+                     <label class="form-label fw-bold">Password</label>
+                     <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                  </div>
+
+                  <div class="form-check mb-3">
+                     <input class="form-check-input" type="checkbox" name="remember" id="remember">
+                     <label class="form-check-label" for="remember">Remember Me</label>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary w-100 py-2 fw-bold"><i class="fas fa-sign-in-alt me-1"></i> Sign In to Portal</button>
+               </form>
+            </div>
+         </div>
+      </div>
+   </body>
+</html>
+<?php /**PATH C:\xampp\htdocs\xplore-22-09-26\resources\views/builder/auth/login.blade.php ENDPATH**/ ?>

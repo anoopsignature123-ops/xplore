@@ -13,6 +13,9 @@ use App\Http\Controllers\Api\V1\Customer\CourseEnrollmentController;
 use App\Http\Controllers\Api\V1\Customer\CustomerAddressController;
 use App\Http\Controllers\Api\V1\Customer\PaymentController; 
 use App\Http\Controllers\Api\V1\Customer\OrderController;
+use App\Http\Controllers\Api\V1\Customer\EquipmentController;
+use App\Http\Controllers\Api\V1\Customer\BuildController;
+
   
 use Illuminate\Support\Facades\Broadcast;
 
@@ -74,7 +77,45 @@ Route::prefix('v1')->group(function () {
         // Chat Routes
         Route::post('survey/{id}/chat-history', [ChatController::class, 'getHistory']);
         Route::post('survey/{id}/chats', [ChatController::class, 'sendMessage']);
+
+        // Equipment Rental Routes (Exact App Actions)
+        Route::post('equipment-rental', [EquipmentController::class, 'home']);
+        Route::post('equipment-list', [EquipmentController::class, 'list']);
+        Route::post('equipment-detail', [EquipmentController::class, 'detail']);
+
+        Route::post('rent-now', [EquipmentController::class, 'calculateSummary']);
+        Route::post('continue-booking', [EquipmentController::class, 'createBooking']);
+        Route::post('equipment-verify-payment', [EquipmentController::class, 'verifyPayment']);
+        Route::match(['get', 'post'], 'equipment-my-bookings', [EquipmentController::class, 'myBookings']);
+        Route::post('equipment-toggle-wishlist', [EquipmentController::class, 'toggleWishlist']);
+
+        // Group prefix alias routes
+        Route::prefix('equipment')->group(function () {
+
+            Route::post('home', [EquipmentController::class, 'home']);
+            Route::post('list', [EquipmentController::class, 'list']);
+            Route::post('detail', [EquipmentController::class, 'detail']);
+            Route::post('rent-now', [EquipmentController::class, 'calculateSummary']);
+
+            Route::post('continue-booking', [EquipmentController::class, 'createBooking']);
+ 
+            Route::post('verify-payment', [EquipmentController::class, 'verifyPayment']);
+            Route::match(['get', 'post'], 'my-bookings', [EquipmentController::class, 'myBookings']);
+            Route::post('toggle-wishlist', [EquipmentController::class, 'toggleWishlist']);
+        });
+
+        // Xplore Build Module APIs
+        Route::post('build-home', [BuildController::class, 'home']);
+        Route::post('build-categories', [BuildController::class, 'categories']);
+        Route::post('build-builders', [BuildController::class, 'builders']);
+        Route::post('build-detail', [BuildController::class, 'detail']);
+        Route::post('build-submit-inquiry', [BuildController::class, 'submitInquiry']);
+        Route::post('build-add-review', [BuildController::class, 'addReview']);
+
+       
     });  
+
+
    
 
 });

@@ -227,8 +227,8 @@ public function updateProfile(Request $request)
         ];
     }
 
- 
-   
+
+
 
 
 

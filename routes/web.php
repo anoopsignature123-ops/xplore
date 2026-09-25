@@ -31,7 +31,27 @@ use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CmsController;
+use App\Http\Controllers\Admin\EquipmentController;
+use App\Http\Controllers\Admin\EquipmentBookingController;
+use App\Http\Controllers\Admin\BuildCategoryController;
+use App\Http\Controllers\Admin\BuilderController;
+use App\Http\Controllers\Admin\BuilderInquiryController;
+use App\Http\Controllers\Builder\Auth\LoginController as BuilderLoginController;
+use App\Http\Controllers\Builder\DashboardController as BuilderDashboardController;
+use App\Http\Controllers\Builder\ProfileController as BuilderProfileController;
+use App\Http\Controllers\Builder\InquiryController as BuilderPortalInquiryController;
+use App\Http\Controllers\PageController;
 
+/*
+|--------------------------------------------------------------------------
+| Public Web Views for Mobile Apps & Web (CMS Pages)
+|--------------------------------------------------------------------------
+*/
+Route::get('/privacy-policy', [PageController::class, 'privacyPolicy'])->name('privacy-policy');
+Route::get('/terms-conditions', [PageController::class, 'termsConditions'])->name('terms-conditions');
+Route::get('/about-us', [PageController::class, 'aboutUs'])->name('about-us');
+Route::get('/contact-us', [PageController::class, 'contactUs'])->name('contact-us');
+Route::get('/page/{slug}', [PageController::class, 'show'])->name('page.show');
 
 Route::get('/', [LoginController::class, 'login'])->name('auth.login'); 
 Route::get('/clean-system', [SystemClean::class, 'index'])->name('clean.system'); 
@@ -443,5 +463,87 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/change-status', [ProductOrderController::class, 'changeStatus'])->name('changeStatus');
         });
 
+        /*
+        |--------------------------------------------------------------------------
+        | Equipment Master & Rental Booking Modules
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('equipment')->name('equipment.')->group(function () {
+            Route::get('/list', [EquipmentController::class, 'index'])->name('list');
+            Route::get('/getRecords', [EquipmentController::class, 'getRecords'])->name('getRecords');
+            Route::get('/add/{id?}', [EquipmentController::class, 'add'])->name('add');
+            Route::post('/save', [EquipmentController::class, 'save'])->name('save');
+            Route::post('/toggle-status', [EquipmentController::class, 'toggleStatus'])->name('toggleStatus');
+            Route::delete('/delete/{id}', [EquipmentController::class, 'delete'])->name('delete');
+        });
+
+        Route::prefix('equipment-booking')->name('equipment-booking.')->group(function () {
+            Route::get('/list', [EquipmentBookingController::class, 'index'])->name('list');
+            Route::get('/getRecords', [EquipmentBookingController::class, 'getRecords'])->name('getRecords');
+            Route::get('/detail/{id}', [EquipmentBookingController::class, 'detail'])->name('detail');
+            Route::post('/update-status/{id}', [EquipmentBookingController::class, 'updateStatus'])->name('updateStatus');
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Xplore Build Modules (Admin)
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('build-category')->name('build-category.')->group(function () {
+            Route::get('/list', [BuildCategoryController::class, 'index'])->name('list');
+            Route::get('/getRecords', [BuildCategoryController::class, 'getRecords'])->name('getRecords');
+            Route::get('/add/{id?}', [BuildCategoryController::class, 'add'])->name('add');
+            Route::post('/save', [BuildCategoryController::class, 'save'])->name('save');
+            Route::post('/toggle-status', [BuildCategoryController::class, 'toggleStatus'])->name('toggleStatus');
+            Route::delete('/delete/{id}', [BuildCategoryController::class, 'delete'])->name('delete');
+        });
+
+        Route::prefix('builder')->name('builder.')->group(function () {
+            Route::get('/list', [BuilderController::class, 'index'])->name('list');
+            Route::get('/getRecords', [BuilderController::class, 'getRecords'])->name('getRecords');
+            Route::get('/add/{id?}', [BuilderController::class, 'add'])->name('add');
+            Route::post('/save', [BuilderController::class, 'save'])->name('save');
+            Route::post('/toggle-verify', [BuilderController::class, 'toggleVerify'])->name('toggleVerify');
+            Route::post('/toggle-status', [BuilderController::class, 'toggleStatus'])->name('toggleStatus');
+            Route::delete('/delete/{id}', [BuilderController::class, 'delete'])->name('delete');
+        });
+
+        Route::prefix('build-inquiry')->name('build-inquiry.')->group(function () {
+            Route::get('/list', [BuilderInquiryController::class, 'index'])->name('list');
+            Route::get('/getRecords', [BuilderInquiryController::class, 'getRecords'])->name('getRecords');
+            Route::post('/update-status', [BuilderInquiryController::class, 'updateStatus'])->name('updateStatus');
+        });
+
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Dedicated Builder / Contractor Portal Routes (/builder)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('builder')->name('builder.')->group(function () {
+    Route::get('/login', [BuilderLoginController::class, 'login'])->name('auth.login');
+    Route::post('/login', [BuilderLoginController::class, 'checkLogin'])->name('checkLogin');
+
+    Route::middleware(['auth:builder'])->group(function () {
+        Route::get('/', [BuilderDashboardController::class, 'index'])->name('index');
+        Route::get('/logout', [BuilderLoginController::class, 'logout'])->name('logout');
+
+        // Profile & Portfolio
+        Route::get('/profile', [BuilderProfileController::class, 'index'])->name('profile');
+        Route::post('/profile/save', [BuilderProfileController::class, 'save'])->name('profile.save');
+        Route::post('/profile/change-password', [BuilderProfileController::class, 'changePassword'])->name('profile.changePassword');
+        Route::post('/profile/add-portfolio', [BuilderProfileController::class, 'addPortfolio'])->name('profile.addPortfolio');
+        Route::delete('/profile/delete-portfolio/{id}', [BuilderProfileController::class, 'deletePortfolio'])->name('profile.deletePortfolio');
+        Route::post('/profile/add-project', [BuilderProfileController::class, 'addProject'])->name('profile.addProject');
+        Route::delete('/profile/delete-project/{id}', [BuilderProfileController::class, 'deleteProject'])->name('profile.deleteProject');
+
+        // Inquiries
+        Route::prefix('inquiry')->name('inquiry.')->group(function () {
+            Route::get('/list', [BuilderPortalInquiryController::class, 'index'])->name('list');
+            Route::get('/getRecords', [BuilderPortalInquiryController::class, 'getRecords'])->name('getRecords');
+            Route::post('/update-status', [BuilderPortalInquiryController::class, 'updateStatus'])->name('updateStatus');
+        });
     });
 });

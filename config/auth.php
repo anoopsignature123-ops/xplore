@@ -45,6 +45,12 @@ return [
             'driver' => 'session',
             'provider' => 'vendors',
         ],
+
+        'builder' => [
+            'driver' => 'session',
+            'provider' => 'builders',
+        ],
+
     ],
 
     /*
@@ -74,6 +80,12 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\Vendor::class,
         ],
+
+        'builders' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Builder::class,
+        ],
+
 
         // 'users' => [
         //     'driver' => 'database',

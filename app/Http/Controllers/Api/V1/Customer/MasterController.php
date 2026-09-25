@@ -356,7 +356,7 @@ public function faqList(Request $request)
             ], 422);
         }
 
-        $cms = Cms::select('heading', 'description')
+        $cms = Cms::select('heading', 'description', 'pagename')
             ->where('pagename', $request->pagename)
             ->where('status', 'Active')
             ->first();
@@ -367,6 +367,8 @@ public function faqList(Request $request)
                 'message' => 'Page not found or inactive',
             ], 404);
         }
+
+        $cms->web_view_url = url('/page/' . str_replace('_', '-', $cms->pagename));
 
         return response()->json([
             'status'  => true,
