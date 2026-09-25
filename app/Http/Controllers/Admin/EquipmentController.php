@@ -49,9 +49,10 @@ class EquipmentController extends Controller
             })
             ->editColumn('status', function ($row) {
                 $checked = $row->status ? 'checked' : '';
-                return '<div class="form-check form-switch">
-                            <input class="form-check-input status-toggle" type="checkbox" data-id="' . $row->id . '" ' . $checked . '>
-                        </div>';
+                return '<label class="custom-switch">
+                            <input class="status-toggle" type="checkbox" data-id="' . $row->id . '" ' . $checked . '>
+                            <span class="slider"></span>
+                        </label>';
             })
             ->addColumn('action', function ($row) {
                 $editUrl = route('admin.equipment.add', $row->id);

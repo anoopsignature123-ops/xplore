@@ -5,6 +5,7 @@
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Builder & Contractor Portal | Login</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
       <link rel="stylesheet" href="<?php echo e(asset('assets/admin/css/fontawesome-min.css')); ?>">
       <link rel="stylesheet" href="<?php echo e(asset('assets/admin/css/style.css')); ?>">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -14,6 +15,9 @@
          <div class="card shadow-lg border-0 rounded-4">
             <div class="card-body p-4 p-sm-5">
                <div class="text-center mb-4">
+                  <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                     <i class="fas fa-city fa-2x"></i>
+                  </div>
                   <h3 class="fw-bold text-primary">Builder Portal</h3>
                   <p class="text-muted">Architects & Construction Professionals</p>
                </div>
@@ -37,13 +41,19 @@
                <form action="<?php echo e(route('builder.checkLogin')); ?>" method="POST">
                   <?php echo csrf_field(); ?>
                   <div class="mb-3">
-                     <label class="form-label fw-bold">Email Address</label>
-                     <input type="email" name="email" class="form-control" placeholder="info@skylinearchitects.com" value="<?php echo e(old('email')); ?>" required autofocus>
+                     <label class="form-label fw-bold"><i class="fas fa-envelope text-primary me-1"></i> Email Address</label>
+                     <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fas fa-user text-muted"></i></span>
+                        <input type="email" name="email" class="form-control" placeholder="info@skylinearchitects.com" value="<?php echo e(old('email')); ?>" required autofocus>
+                     </div>
                   </div>
 
                   <div class="mb-3">
-                     <label class="form-label fw-bold">Password</label>
-                     <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                     <label class="form-label fw-bold"><i class="fas fa-lock text-primary me-1"></i> Password</label>
+                     <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="fas fa-key text-muted"></i></span>
+                        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                     </div>
                   </div>
 
                   <div class="form-check mb-3">

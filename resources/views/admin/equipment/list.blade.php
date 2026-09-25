@@ -91,43 +91,70 @@ $(document).ready(function() {
     });
 
     $(document).on('change', '.status-toggle', function() {
-        var id = $(this).data('id');
-        $.ajax({
-            url: "{{ route('admin.equipment.toggleStatus') }}",
-            type: "POST",
-            data: {
-                _token: "{{ csrf_token() }}",
-                id: id
-            },
-            success: function(response) {
-                if (response.status) {
-                    toastr.success(response.message);
-                } else {
-                    toastr.error(response.message);
-                }
+        var checkbox = $(this);
+        var id = checkbox.data('id');
+        var isChecked = checkbox.is(':checked');
+
+        Swal.fire({
+            title: 'Change Status?',
+            text: 'Are you sure you want to change status for this equipment?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#308e87',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, change it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('admin.equipment.toggleStatus') }}",
+                    type: "POST",
+                    data: { _token: "{{ csrf_token() }}", id: id },
+                    success: function(response) {
+                        if (response.status) {
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message);
+                            checkbox.prop('checked', !isChecked);
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Something went wrong!');
+                        checkbox.prop('checked', !isChecked);
+                    }
+                });
+            } else {
+                checkbox.prop('checked', !isChecked);
             }
         });
     });
 
     $(document).on('click', '.delete-btn', function() {
         var url = $(this).data('url');
-        if (confirm('Are you sure you want to delete this equipment?')) {
-            $.ajax({
-                url: url,
-                type: "DELETE",
-                data: {
-                    _token: "{{ csrf_token() }}"
-                },
-                success: function(response) {
-                    if (response.status) {
-                        toastr.success(response.message);
-                        table.ajax.reload();
-                    } else {
-                        toastr.error(response.message);
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will not be able to recover this equipment!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: url,
+                    type: "DELETE",
+                    data: { _token: "{{ csrf_token() }}" },
+                    success: function(response) {
+                        if (response.status) {
+                            Swal.fire('Deleted!', response.message, 'success');
+                            table.ajax.reload();
+                        } else {
+                            toastr.error(response.message);
+                        }
                     }
-                }
-            });
-        }
+                });
+            }
+        });
     });
 });
 </script>

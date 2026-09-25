@@ -64,14 +64,15 @@ class BuilderController extends Controller
             })
             ->editColumn('is_verified', function ($row) {
                 $checked = $row->is_verified ? 'checked' : '';
-                $badge = $row->is_verified ? '<span class="badge bg-success ms-1"><i class="fas fa-check-circle"></i> Verified</span>' : '';
-                return '<div class="d-flex align-items-center"><div class="form-check form-switch"><input class="form-check-input verify-toggle" type="checkbox" data-id="' . $row->id . '" ' . $checked . '></div>' . $badge . '</div>';
+                $badge = $row->is_verified ? '<span class="badge bg-success ms-2"><i class="fas fa-check-circle me-1"></i>Verified</span>' : '';
+                return '<div class="d-flex align-items-center"><label class="custom-switch"><input type="checkbox" class="verify-toggle" data-id="' . $row->id . '" ' . $checked . '><span class="slider"></span></label>' . $badge . '</div>';
             })
             ->editColumn('status', function ($row) {
                 $checked = $row->status ? 'checked' : '';
-                return '<div class="form-check form-switch">
-                            <input class="form-check-input status-toggle" type="checkbox" data-id="' . $row->id . '" ' . $checked . '>
-                        </div>';
+                return '<label class="custom-switch">
+                            <input class="status-toggle" type="checkbox" data-id="' . $row->id . '" ' . $checked . '>
+                            <span class="slider"></span>
+                        </label>';
             })
             ->addColumn('action', function ($row) {
                 $editUrl = route('admin.builder.add', $row->id);

@@ -5,7 +5,7 @@
       <div class="page-title">
          <div class="row">
             <div class="col-sm-6 col-12">
-               <h4 class="m-0">Welcome, <?php echo e($builder->firm_name); ?></h4>
+               <h4 class="m-0 fw-bold text-dark">Welcome, <?php echo e($builder->firm_name); ?> <span class="badge text-white ms-2 align-middle px-3 py-2" style="background-color: #308e87 !important; font-size: 13px;"><i class="fas fa-hard-hat me-1"></i> Builder Portal</span></h4>
                <p class="text-muted mb-0">Contact Person: <?php echo e($builder->name); ?> | <?php echo e($builder->category->name ?? 'Professional'); ?></p>
             </div>
             <div class="col-sm-6 col-12 text-end">

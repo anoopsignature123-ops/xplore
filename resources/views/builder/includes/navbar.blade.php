@@ -6,11 +6,14 @@
     <div class="page-wrapper compact-wrapper" id="pageWrapper">   
       <header class="page-header row">
         <div class="logo-wrapper d-flex align-items-center col-auto">
-          <a href="{{ route('builder.index') }}">	
-            <img class="light-logo img-fluid" src="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}" alt="{{ $settings->company_name ?? '' }}" style="width:auto;height:60px;">
-            <img class="dark-logo img-fluid" src="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}" alt="{{ $settings->company_name ?? '' }}" style="width:auto;height:60px;">
+          <a href="{{ route('builder.index') }}" class="d-flex align-items-center me-2 text-decoration-none">	
+            <img class="light-logo img-fluid" src="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}" alt="{{ $settings->company_name ?? '' }}" style="width:auto;height:50px;">
+            <img class="dark-logo img-fluid" src="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}" alt="{{ $settings->company_name ?? '' }}" style="width:auto;height:50px;">
           </a>
-          <a class="close-btn toggle-sidebar" href="javascript:void(0)">
+          <span class="badge text-white px-3 py-2 rounded-2 shadow-sm d-none d-sm-inline-block" style="background-color: #308e87 !important; color: #ffffff !important; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px;">
+            <i class="fas fa-city me-1"></i> BUILDER PORTAL
+          </span>
+          <a class="close-btn toggle-sidebar ms-2" href="javascript:void(0)">
             <svg class="svg-color">
               <use href="{{ config('app.admin_assets') }}svg/iconly-sprite.svg#Category"></use>
             </svg>

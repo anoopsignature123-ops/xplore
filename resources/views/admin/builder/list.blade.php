@@ -103,46 +103,104 @@ $(document).ready(function() {
     });
 
     $(document).on('change', '.verify-toggle', function() {
-        var id = $(this).data('id');
-        $.ajax({
-            url: "{{ route('admin.builder.toggleVerify') }}",
-            type: "POST",
-            data: { _token: "{{ csrf_token() }}", id: id },
-            success: function(res) {
-                if(res.status) toastr.success(res.message);
-                else toastr.error(res.message);
+        var checkbox = $(this);
+        var id = checkbox.data('id');
+        var isChecked = checkbox.is(':checked');
+
+        Swal.fire({
+            title: 'Toggle Verification?',
+            text: 'Are you sure you want to change verification status for this builder?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#308e87',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, change it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('admin.builder.toggleVerify') }}",
+                    type: "POST",
+                    data: { _token: "{{ csrf_token() }}", id: id },
+                    success: function(res) {
+                        if(res.status) toastr.success(res.message);
+                        else {
+                            toastr.error(res.message);
+                            checkbox.prop('checked', !isChecked);
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Something went wrong!');
+                        checkbox.prop('checked', !isChecked);
+                    }
+                });
+            } else {
+                checkbox.prop('checked', !isChecked);
             }
         });
     });
 
     $(document).on('change', '.status-toggle', function() {
-        var id = $(this).data('id');
-        $.ajax({
-            url: "{{ route('admin.builder.toggleStatus') }}",
-            type: "POST",
-            data: { _token: "{{ csrf_token() }}", id: id },
-            success: function(res) {
-                if(res.status) toastr.success(res.message);
-                else toastr.error(res.message);
+        var checkbox = $(this);
+        var id = checkbox.data('id');
+        var isChecked = checkbox.is(':checked');
+
+        Swal.fire({
+            title: 'Change Status?',
+            text: 'Are you sure you want to change status for this builder?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#308e87',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, change it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('admin.builder.toggleStatus') }}",
+                    type: "POST",
+                    data: { _token: "{{ csrf_token() }}", id: id },
+                    success: function(res) {
+                        if(res.status) toastr.success(res.message);
+                        else {
+                            toastr.error(res.message);
+                            checkbox.prop('checked', !isChecked);
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Something went wrong!');
+                        checkbox.prop('checked', !isChecked);
+                    }
+                });
+            } else {
+                checkbox.prop('checked', !isChecked);
             }
         });
     });
 
     $(document).on('click', '.delete-btn', function() {
         var url = $(this).data('url');
-        if(confirm('Are you sure you want to delete this builder profile?')) {
-            $.ajax({
-                url: url,
-                type: "DELETE",
-                data: { _token: "{{ csrf_token() }}" },
-                success: function(res) {
-                    if(res.status) {
-                        toastr.success(res.message);
-                        table.ajax.reload();
-                    } else toastr.error(res.message);
-                }
-            });
-        }
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You will not be able to recover this builder profile!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: url,
+                    type: "DELETE",
+                    data: { _token: "{{ csrf_token() }}" },
+                    success: function(res) {
+                        if(res.status) {
+                            Swal.fire('Deleted!', res.message, 'success');
+                            table.ajax.reload();
+                        } else toastr.error(res.message);
+                    }
+                });
+            }
+        });
     });
 });
 </script>

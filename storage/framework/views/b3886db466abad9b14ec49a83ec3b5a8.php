@@ -21,6 +21,8 @@ $segment_three = request()->segment(3);
    <div class="main-sidebar" id="main-sidebar">
       <ul class="sidebar-menu" id="simple-bar">
 
+         
+
          <!-- 1. Dashboard -->
          <li class="sidebar-list <?php echo e(request()->routeIs('builder.index') ? 'active' : ''); ?>">
             <a class="sidebar-link" href="<?php echo e(route('builder.index')); ?>">

@@ -115,9 +115,9 @@ $segment_three = request()->segment(3);
                <i class="fas fa-chevron-right ms-auto"></i>
             </a>
             <ul class="sidebar-submenu" style="<?php echo e(in_array($segment_two, ['equipment', 'equipment-booking']) ? 'display:block;' : ''); ?>">
-               <li><a class="<?php echo e($segment_two == 'equipment' && $segment_three == 'list' ? 'active' : ''); ?>" href="<?php echo e(route('admin.equipment.list')); ?>"><i class="fas fa-list me-2"></i> Equipments List</a></li>
-               <li><a class="<?php echo e($segment_two == 'equipment' && $segment_three == 'add' ? 'active' : ''); ?>" href="<?php echo e(route('admin.equipment.add')); ?>"><i class="fas fa-plus-circle me-2"></i> Add Equipment</a></li>
-               <li><a class="<?php echo e($segment_two == 'equipment-booking' ? 'active' : ''); ?>" href="<?php echo e(route('admin.equipment-booking.list')); ?>"><i class="fas fa-calendar-check me-2"></i> Rental Bookings</a></li>
+               <li><a class="<?php echo e($segment_two == 'equipment' && $segment_three == 'list' ? 'active' : ''); ?>" href="<?php echo e(route('admin.equipment.list')); ?>">Equipments List</a></li>
+               <li><a class="<?php echo e($segment_two == 'equipment' && $segment_three == 'add' ? 'active' : ''); ?>" href="<?php echo e(route('admin.equipment.add')); ?>">Add Equipment</a></li>
+               <li><a class="<?php echo e($segment_two == 'equipment-booking' ? 'active' : ''); ?>" href="<?php echo e(route('admin.equipment-booking.list')); ?>">Rental Bookings</a></li>
             </ul>
          </li>
 
@@ -129,10 +129,10 @@ $segment_three = request()->segment(3);
                <i class="fas fa-chevron-right ms-auto"></i>
             </a>
             <ul class="sidebar-submenu" style="<?php echo e(in_array($segment_two, ['build-category', 'builder', 'build-inquiry']) ? 'display:block;' : ''); ?>">
-               <li><a class="<?php echo e($segment_two == 'build-category' ? 'active' : ''); ?>" href="<?php echo e(route('admin.build-category.list')); ?>"><i class="fas fa-th-large me-2"></i> Build Categories</a></li>
-               <li><a class="<?php echo e($segment_two == 'builder' && $segment_three == 'list' ? 'active' : ''); ?>" href="<?php echo e(route('admin.builder.list')); ?>"><i class="fas fa-user-tie me-2"></i> Builders List</a></li>
-               <li><a class="<?php echo e($segment_two == 'builder' && $segment_three == 'add' ? 'active' : ''); ?>" href="<?php echo e(route('admin.builder.add')); ?>"><i class="fas fa-user-plus me-2"></i> Add Builder</a></li>
-               <li><a class="<?php echo e($segment_two == 'build-inquiry' ? 'active' : ''); ?>" href="<?php echo e(route('admin.build-inquiry.list')); ?>"><i class="fas fa-headset me-2"></i> Customer Inquiries</a></li>
+               <li><a class="<?php echo e($segment_two == 'build-category' ? 'active' : ''); ?>" href="<?php echo e(route('admin.build-category.list')); ?>">Build Categories</a></li>
+               <li><a class="<?php echo e($segment_two == 'builder' && $segment_three == 'list' ? 'active' : ''); ?>" href="<?php echo e(route('admin.builder.list')); ?>">Builders List</a></li>
+               <li><a class="<?php echo e($segment_two == 'builder' && $segment_three == 'add' ? 'active' : ''); ?>" href="<?php echo e(route('admin.builder.add')); ?>">Add Builder</a></li>
+               <li><a class="<?php echo e($segment_two == 'build-inquiry' ? 'active' : ''); ?>" href="<?php echo e(route('admin.build-inquiry.list')); ?>">Customer Inquiries</a></li>
             </ul>
          </li>
 

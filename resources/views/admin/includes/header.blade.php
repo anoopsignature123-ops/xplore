@@ -52,6 +52,45 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
    <style>
+    .custom-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 22px;
+      margin: 0;
+      vertical-align: middle;
+    }
+    .custom-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .custom-switch .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #cbd5e1;
+      transition: .3s;
+      border-radius: 22px;
+    }
+    .custom-switch .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .custom-switch input:checked + .slider {
+      background-color: #308e87;
+    }
+    .custom-switch input:checked + .slider:before {
+      transform: translateX(22px);
+    }
     .toast-info {
         color: #fff !important;
     }

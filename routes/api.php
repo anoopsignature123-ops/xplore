@@ -111,12 +111,7 @@ Route::prefix('v1')->group(function () {
         Route::post('build-detail', [BuildController::class, 'detail']);
         Route::post('build-submit-inquiry', [BuildController::class, 'submitInquiry']);
         Route::post('build-add-review', [BuildController::class, 'addReview']);
-
-       
     });  
-
-
-   
 
 });
 

@@ -1,17 +1,16 @@
-@extends('admin.includes.layout')
-@section('title', $page_title)
-@section('content')
+<?php $__env->startSection('title', $page_title); ?>
+<?php $__env->startSection('content'); ?>
 <div class="page-body">
    <div class="container-fluid">
       <div class="page-title">
          <div class="row">
             <div class="col-sm-6 col-12">
-               <h4 class="m-0">{{ $page_title }}</h4>
+               <h4 class="m-0"><?php echo e($page_title); ?></h4>
             </div>
             <div class="col-sm-6 col-12">
                <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="{{ route('admin.index') }}"><i class="fa-solid fa-home me-2"></i></a></li>
-                  <li class="breadcrumb-item">{{ $page_title }}</li>
+                  <li class="breadcrumb-item"><a href="<?php echo e(route('admin.index')); ?>"><i class="fa-solid fa-home me-2"></i></a></li>
+                  <li class="breadcrumb-item"><?php echo e($page_title); ?></li>
                </ol>
             </div>
          </div>
@@ -22,18 +21,19 @@
          <div class="col-sm-12">
             <div class="card shadow-lg border-0 rounded-3">
                <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
-                  <h5 class="mb-0 fw-bold text-primary">{{ $page_title }}</h5>
-                  <a href="{{ route('admin.build-category.add') }}" class="btn btn-primary btn-sm">
+                  <h5 class="mb-0 fw-bold text-primary"><?php echo e($page_title); ?></h5>
+                  <a href="<?php echo e(route('admin.build-category.add')); ?>" class="btn btn-primary btn-sm">
                      <i class="fas fa-plus me-1"></i> Add Build Category
                   </a>
                </div>
                <div class="card-body">
-                  @if(session('success'))
+                  <?php if(session('success')): ?>
                      <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
+                        <?php echo e(session('success')); ?>
+
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                      </div>
-                  @endif
+                  <?php endif; ?>
 
                   <div class="table-responsive">
                      <table class="table table-bordered table-striped" id="build-category-table">
@@ -54,16 +54,16 @@
       </div>
    </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script>
 $(document).ready(function() {
     var table = $('#build-category-table').DataTable({
         processing: true,
         serverSide: true,
-        ajax: "{{ route('admin.build-category.getRecords') }}",
+        ajax: "<?php echo e(route('admin.build-category.getRecords')); ?>",
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
             {data: 'name', name: 'name'},
@@ -90,9 +90,9 @@ $(document).ready(function() {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "{{ route('admin.build-category.toggleStatus') }}",
+                    url: "<?php echo e(route('admin.build-category.toggleStatus')); ?>",
                     type: "POST",
-                    data: { _token: "{{ csrf_token() }}", id: id },
+                    data: { _token: "<?php echo e(csrf_token()); ?>", id: id },
                     success: function(res) {
                         if(res.status) {
                             toastr.success(res.message);
@@ -128,7 +128,7 @@ $(document).ready(function() {
                 $.ajax({
                     url: url,
                     type: "DELETE",
-                    data: { _token: "{{ csrf_token() }}" },
+                    data: { _token: "<?php echo e(csrf_token()); ?>" },
                     success: function(res) {
                         if(res.status) {
                             Swal.fire('Deleted!', res.message, 'success');
@@ -143,4 +143,6 @@ $(document).ready(function() {
     });
 });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('admin.includes.layout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\xplore-22-09-26\resources\views/admin/build_category/list.blade.php ENDPATH**/ ?>
