@@ -25,16 +25,42 @@
 @stack('scripts')
 <script>
    $(function() {
+      // Toastr configuration (avoid overlapping top-right user menu)
+      toastr.options = {
+         "closeButton": true,
+         "progressBar": true,
+         "positionClass": "toast-top-center",
+         "showDuration": "300",
+         "hideDuration": "1000",
+         "timeOut": "3500",
+         "extendedTimeOut": "1000",
+         "showEasing": "swing",
+         "hideEasing": "linear",
+         "showMethod": "fadeIn",
+         "hideMethod": "fadeOut"
+      };
+
       @if(session('success'))
          setTimeout(function() {
             toastr.success('{{ session('success') }}');
-         }, 500);
+         }, 300);
       @endif
       @if(session('error'))
          setTimeout(function() {
             toastr.error('{{ session('error') }}');
-         }, 500);
+         }, 300);
       @endif
+
+      // Mobile drawer overlay dismiss
+      $('#vpSidebarOverlay').on('click', function () {
+         $('#pageWrapper').removeClass('sidebar-open');
+         $('.page-sidebar').removeClass('open');
+      });
+
+      // Sidebar toggle button handler for responsive devices
+      $('.toggle-sidebar, .close-btn.toggle-sidebar').on('click', function () {
+         $('#pageWrapper').toggleClass('sidebar-open');
+      });
    });
 </script>
 </body>

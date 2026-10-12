@@ -37,6 +37,7 @@
         <!-- App Theme & Core CSS -->
         <link id="color" rel="stylesheet" href="{{ asset('assets/admin/css/color-1.css') }}" media="screen">
         <link rel="stylesheet" href="{{ asset('assets/admin/css/style.css') }}">
+        <link rel="stylesheet" href="{{ asset('assets/admin/css/vendor-panel.css') }}?v={{ time() }}">
 
 
     <!-- Latest Font Awesome 6 Free -->
@@ -120,23 +121,7 @@ select.form-select-sm + .select2-container .select2-selection--single .select2-s
 
 span.dropdown-wrapper {
     display: none;
-} 
-.page-header .logo-wrapper .close-btn {
-    background-color: rgba(48, 142, 135, 0.2);
 }
-
-.page-header .logo-wrapper .close-btn .svg-color {
-    stroke: var(--theme-default) !important;
-}
-
-.page-header .logo-wrapper .close-btn:hover {
-    background-color: rgba(48, 142, 135, 0.2);
-}
-
-.page-header .logo-wrapper .close-btn:hover .svg-color {
-    stroke: var(--theme-default) !important;
-}
-
 </style>
     @stack('styles') 
 

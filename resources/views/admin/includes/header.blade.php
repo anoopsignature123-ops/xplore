@@ -37,6 +37,8 @@
         <!-- App Theme & Core CSS -->
         <link id="color" rel="stylesheet" href="{{ asset('assets/admin/css/color-1.css') }}" media="screen">
         <link rel="stylesheet" href="{{ asset('assets/admin/css/style.css') }}">
+        <!-- Modern Admin Panel Luxury Stylesheet -->
+        <link rel="stylesheet" href="{{ asset('assets/admin/css/admin-panel.css') }}">
 
 
     <!-- Latest Font Awesome 6 Free -->

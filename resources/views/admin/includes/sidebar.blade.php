@@ -1,69 +1,79 @@
 @php
 $segment_two = request()->segment(2);
 $segment_three = request()->segment(3);
+$adminUser = auth()->user();
 @endphp
-<style>
-   .sidebar-menu .sidebar-list a.active {
-   color: #fff !important;
-   background-color: #308e87;
-   border-radius: 6px;
-   }
-   .sidebar-menu .sidebar-list h6 {
-   margin-bottom: 0;
-   font-weight: 600;
-   }
-</style>
+
 <!-- Page Body Start-->
 <div class="page-body-wrapper">
+<!-- Backdrop for mobile drawer toggle -->
+<div class="vp-sidebar-overlay" id="vpSidebarOverlay"></div>
+
 <!-- Page sidebar start-->
 <aside class="page-sidebar">
    <div class="left-arrow" id="left-arrow">
       <i class="fas fa-arrow-left"></i>
    </div>
    <div class="main-sidebar" id="main-sidebar">
+      <!-- Mini Admin Profile Card -->
+      <div class="sidebar-admin-profile-card">
+         @if(!empty($adminUser->profile_pic))
+            <img src="{{ asset($adminUser->profile_pic) }}" alt="{{ $adminUser->name ?? 'Admin' }}" class="admin-avatar">
+         @else
+            <div class="admin-avatar d-flex align-items-center justify-content-center text-white fw-bold" style="background: linear-gradient(135deg, #0d9488, #0f766e); font-size: 15px;">
+               {{ strtoupper(substr($adminUser->name ?? 'A', 0, 1)) }}
+            </div>
+         @endif
+         <div class="overflow-hidden">
+            <div class="admin-name" title="{{ $adminUser->name ?? 'Super Admin' }}">{{ $adminUser->name ?? 'Super Admin' }}</div>
+            <span class="admin-badge">
+               <i class="fas fa-crown" style="font-size: 8px;"></i> Master Admin
+            </span>
+         </div>
+      </div>
+
       <ul class="sidebar-menu" id="simple-bar">
 
          <!-- 1. Dashboard -->
          <li class="sidebar-list {{ $segment_two == '' ? 'active' : '' }}">
             <a class="sidebar-link" href="{{ route('admin.index') }}">
-               <i class="fas fa-home me-2"></i>
+               <span class="menu-icon-box"><i class="fas fa-tachometer-alt"></i></span>
                <h6>Dashboard</h6>
             </a>
          </li>
 
-           <!-- Masters -->
-   <li class="sidebar-list {{ in_array($segment_two, ['slider', 'survey', 'faq', 'notification', 'cms', 'contact-type']) ? 'active' : '' }}">
-      <a class="sidebar-link" href="javascript:void(0)">
-         <i class="fas fa-layer-group me-2"></i>
-         <h6>Masters</h6>
-         <i class="fas fa-chevron-right ms-auto"></i>
-      </a>
-      <ul class="sidebar-submenu" style="{{ in_array($segment_two, ['slider', 'survey', 'faq', 'notification', 'cms', 'contact-type']) ? 'display:block;' : '' }}">
-         @can('slider-list')
-         <li><a class="{{ $segment_two == 'slider' ? 'active' : '' }}" href="{{ route('admin.slider.list') }}">Sliders</a></li>
-         @endcan
-         @can('survey-list')
-         <li><a class="{{ $segment_two == 'survey' ? 'active' : '' }}" href="{{ route('admin.survey.list') }}">Surveys</a></li>
-         @endcan
-         @can('faq-list')
-         <li><a class="{{ $segment_two == 'faq' ? 'active' : '' }}" href="{{ route('admin.faq.list') }}">FAQs</a></li>
-         @endcan
-         <li><a class="{{ $segment_two == 'contact-type' ? 'active' : '' }}" href="{{ route('admin.contact-type.list') }}">Contact Types</a></li>
-         @can('notification-list')
-         <li><a class="{{ $segment_two == 'notification' ? 'active' : '' }}" href="{{ route('admin.notification.list') }}">Notifications</a></li>
-         @endcan
-         @can('cms-list')
-         <li><a class="{{ $segment_two == 'cms' ? 'active' : '' }}" href="{{ route('admin.cms.list') }}">CMS Pages</a></li>
-         @endcan
-      </ul>
-   </li>
+         <!-- Masters -->
+         <li class="sidebar-list {{ in_array($segment_two, ['slider', 'survey', 'faq', 'notification', 'cms', 'contact-type']) ? 'active' : '' }}">
+            <a class="sidebar-link" href="javascript:void(0)">
+               <span class="menu-icon-box"><i class="fas fa-layer-group"></i></span>
+               <h6>Masters</h6>
+               <i class="fas fa-chevron-right ms-auto"></i>
+            </a>
+            <ul class="sidebar-submenu" style="{{ in_array($segment_two, ['slider', 'survey', 'faq', 'notification', 'cms', 'contact-type']) ? 'display:block;' : '' }}">
+               @can('slider-list')
+               <li><a class="{{ $segment_two == 'slider' ? 'active' : '' }}" href="{{ route('admin.slider.list') }}">Sliders</a></li>
+               @endcan
+               @can('survey-list')
+               <li><a class="{{ $segment_two == 'survey' ? 'active' : '' }}" href="{{ route('admin.survey.list') }}">Surveys</a></li>
+               @endcan
+               @can('faq-list')
+               <li><a class="{{ $segment_two == 'faq' ? 'active' : '' }}" href="{{ route('admin.faq.list') }}">FAQs</a></li>
+               @endcan
+               <li><a class="{{ $segment_two == 'contact-type' ? 'active' : '' }}" href="{{ route('admin.contact-type.list') }}">Contact Types</a></li>
+               @can('notification-list')
+               <li><a class="{{ $segment_two == 'notification' ? 'active' : '' }}" href="{{ route('admin.notification.list') }}">Notifications</a></li>
+               @endcan
+               @can('cms-list')
+               <li><a class="{{ $segment_two == 'cms' ? 'active' : '' }}" href="{{ route('admin.cms.list') }}">CMS Pages</a></li>
+               @endcan
+            </ul>
+         </li>
 
-
-      <!-- Products Catalog -->
+         <!-- Products Catalog -->
          @canany(['product-category-list', 'product-sub-category-list', 'product-brand-list', 'product-list'])
          <li class="sidebar-list {{ in_array($segment_two, ['product-category', 'product-sub-category', 'product-brand', 'product']) ? 'active' : '' }}">
             <a class="sidebar-link" href="javascript:void(0)">
-               <i class="fas fa-box-open me-2"></i>
+               <span class="menu-icon-box"><i class="fas fa-box-open"></i></span>
                <h6>Product Master</h6>
                <i class="fas fa-chevron-right ms-auto"></i>
             </a>
@@ -88,7 +98,7 @@ $segment_three = request()->segment(3);
          @canany(['course-category-list', 'course-list', 'course-lesson-list'])
          <li class="sidebar-list {{ in_array($segment_two, ['course-category', 'course', 'course-lesson']) ? 'active' : '' }}">
             <a class="sidebar-link" href="javascript:void(0)">
-               <i class="fas fa-graduation-cap me-2"></i>
+               <span class="menu-icon-box"><i class="fas fa-graduation-cap"></i></span>
                <h6>Course Master</h6>
                <i class="fas fa-chevron-right ms-auto"></i>
             </a>
@@ -106,10 +116,10 @@ $segment_three = request()->segment(3);
          </li>
          @endcanany
 
-         <!-- Equipment Rental (Xplore Equips) -->
+         <!-- Equipment Rental -->
          <li class="sidebar-list {{ in_array($segment_two, ['equipment', 'equipment-booking']) ? 'active' : '' }}">
             <a class="sidebar-link" href="javascript:void(0)">
-               <i class="fas fa-tools me-2"></i>
+               <span class="menu-icon-box"><i class="fas fa-tools"></i></span>
                <h6>Equipment Rental</h6>
                <i class="fas fa-chevron-right ms-auto"></i>
             </a>
@@ -123,7 +133,7 @@ $segment_three = request()->segment(3);
          <!-- Xplore Build -->
          <li class="sidebar-list {{ in_array($segment_two, ['build-category', 'builder', 'build-inquiry']) ? 'active' : '' }}">
             <a class="sidebar-link" href="javascript:void(0)">
-               <i class="fas fa-building me-2"></i>
+               <span class="menu-icon-box"><i class="fas fa-city"></i></span>
                <h6>Xplore Build</h6>
                <i class="fas fa-chevron-right ms-auto"></i>
             </a>
@@ -135,37 +145,31 @@ $segment_three = request()->segment(3);
             </ul>
          </li>
 
+         <!-- Vendors -->
+         @canany(['vendor-list', 'vendor-add'])
+         <li class="sidebar-list {{ in_array($segment_two, ['vendor', 'vendor-category']) ? 'active' : '' }}">
+            <a class="sidebar-link" href="javascript:void(0)">
+               <span class="menu-icon-box"><i class="fas fa-store"></i></span>
+               <h6>Vendors</h6>
+               <i class="fas fa-chevron-right ms-auto"></i>
+            </a>
+            <ul class="sidebar-submenu" style="{{ in_array($segment_two, ['vendor', 'vendor-category']) ? 'display:block;' : '' }}">
+               @can('vendor-add')
+               <li><a class="{{ $segment_two == 'vendor' && $segment_three == 'add' ? 'active' : '' }}" href="{{ route('admin.vendor.add') }}">Add Vendor</a></li>
+               @endcan
+               @can('vendor-list')
+               <li><a class="{{ $segment_two == 'vendor' && $segment_three == 'list' ? 'active' : '' }}" href="{{ route('admin.vendor.list') }}">Vendor List</a></li>
+               @endcan
+               <li><a class="{{ $segment_two == 'vendor-category' ? 'active' : '' }}" href="{{ route('admin.vendor-category.list') }}">Vendor Categories</a></li>
+            </ul>
+         </li>
+         @endcanany
 
-
-
-
-
-   <!-- Vendors -->
- @canany(['vendor-list', 'vendor-add'])
- <li class="sidebar-list {{ in_array($segment_two, ['vendor', 'vendor-category']) ? 'active' : '' }}">
-    <a class="sidebar-link" href="javascript:void(0)">
-       <i class="fas fa-store me-2"></i>  
-       <h6>Vendors</h6>
-       <i class="fas fa-chevron-right ms-auto"></i>
-    </a>
-    <ul class="sidebar-submenu" style="{{ in_array($segment_two, ['vendor', 'vendor-category']) ? 'display:block;' : '' }}">
-       @can('vendor-add')
-       <li><a class="{{ $segment_two == 'vendor' && $segment_three == 'add' ? 'active' : '' }}" href="{{ route('admin.vendor.add') }}">Add Vendor</a></li>
-       @endcan
-       @can('vendor-list')
-       <li><a class="{{ $segment_two == 'vendor' && $segment_three == 'list' ? 'active' : '' }}" href="{{ route('admin.vendor.list') }}">Vendor List</a></li>
-       @endcan
-       <li><a class="{{ $segment_two == 'vendor-category' ? 'active' : '' }}" href="{{ route('admin.vendor-category.list') }}">Vendor Categories</a></li>
-    </ul>
- </li>
- @endcanany
-
-
-         <!-- 2. Customers Hub -->
+         <!-- Customers Hub -->
          @canany(['customer-list', 'customer-survey-list', 'product-order-list', 'course-enrollment-list'])
          <li class="sidebar-list {{ in_array($segment_two, ['customer', 'customer-survey', 'product-order','course-enrollment']) ? 'active' : '' }}">
             <a class="sidebar-link" href="javascript:void(0)">
-               <i class="fas fa-users me-2"></i>
+               <span class="menu-icon-box"><i class="fas fa-users"></i></span>
                <h6>Customers</h6>
                <i class="fas fa-chevron-right ms-auto"></i>
             </a>
@@ -186,12 +190,11 @@ $segment_three = request()->segment(3);
          </li>
          @endcanany
 
-         
          <!-- Help Queries -->
          @can('help-query-list')
          <li class="sidebar-list {{ in_array($segment_two, ['help-query']) ? 'active' : '' }}">
             <a class="sidebar-link" href="{{ route('admin.help-query.list') }}">
-               <i class="fas fa-headset me-2"></i>
+               <span class="menu-icon-box"><i class="fas fa-headset"></i></span>
                <h6>Help Queries</h6>
             </a>
          </li>
@@ -200,17 +203,16 @@ $segment_three = request()->segment(3);
          <!-- Contact Us Queries -->
          <li class="sidebar-list {{ in_array($segment_two, ['contact-us']) ? 'active' : '' }}">
             <a class="sidebar-link" href="{{ route('admin.contact-us.list') }}">
-               <i class="fas fa-envelope-open-text me-2"></i>
+               <span class="menu-icon-box"><i class="fas fa-envelope-open-text"></i></span>
                <h6>Contact Us Queries</h6>
             </a>
          </li>
-         
 
          <!-- All Orders -->
          @can('order-list')
          <li class="sidebar-list {{ in_array($segment_two, ['order']) ? 'active' : '' }}">
             <a class="sidebar-link" href="{{ route('admin.order.list') }}">
-               <i class="fas fa-shopping-cart me-2"></i>
+               <span class="menu-icon-box"><i class="fas fa-shopping-cart"></i></span>
                <h6>Orders</h6>
             </a>
          </li>
@@ -220,20 +222,17 @@ $segment_three = request()->segment(3);
          @can('transaction-list')
          <li class="sidebar-list {{ in_array($segment_two, ['transaction']) ? 'active' : '' }}">
             <a class="sidebar-link" href="{{ route('admin.transaction.list') }}">
-               <i class="fas fa-exchange-alt me-2"></i>
+               <span class="menu-icon-box"><i class="fas fa-exchange-alt"></i></span>
                <h6>Transactions</h6>
             </a>
          </li>
          @endcan
 
-
-
-     
-         <!-- 13. Role Permission -->
+         <!-- Role Permission -->
          @canany(['user-list', 'role-list', 'permission-list', 'role-add'])
          <li class="sidebar-list {{ in_array($segment_two, ['users', 'roles', 'permissions']) ? 'active' : '' }}">
             <a class="sidebar-link" href="javascript:void(0)">
-               <i class="fas fa-users-cog me-2"></i>
+               <span class="menu-icon-box"><i class="fas fa-users-cog"></i></span>
                <h6>Role Permission</h6>
                <i class="fas fa-chevron-right ms-auto"></i>
             </a>
@@ -254,35 +253,31 @@ $segment_three = request()->segment(3);
          </li>
          @endcanany
 
-
-        
-
-         <!-- 15. Web Settings -->
+         <!-- Web Settings -->
          @can('web-setting')
          <li class="sidebar-list {{ in_array($segment_two, ['web-settings']) ? 'active' : '' }}">
             <a class="sidebar-link" href="{{ route('admin.websettings') }}">
-               <i class="fas fa-cogs me-2"></i>
+               <span class="menu-icon-box"><i class="fas fa-cogs"></i></span>
                <h6>Web Settings</h6>
             </a>
          </li>
          @endcan
 
-          <!-- 14. Activity Logs -->
+         <!-- Activity Logs -->
          @can('activity-log')
          <li class="sidebar-list {{ in_array($segment_two, ['activity-logs']) ? 'active' : '' }}">
             <a class="sidebar-link" href="{{ route('admin.activity-logs.list') }}">
-               <i class="fas fa-history me-2"></i>
+               <span class="menu-icon-box"><i class="fas fa-history"></i></span>
                <h6>Activity Logs</h6>
             </a>
          </li>
          @endcan
-         
 
-         <!-- 15. Logout -->
-         <li class="sidebar-list">
+         <!-- Logout -->
+         <li class="sidebar-list mt-3">
             <a class="sidebar-link text-danger" href="{{ route('admin.logout') }}">
-               <i class="fas fa-sign-out-alt me-2"></i>
-               <h6 class="f-w-600 text-danger">Logout</h6>
+               <span class="menu-icon-box"><i class="fas fa-sign-out-alt text-danger"></i></span>
+               <h6 class="text-danger">Logout</h6>
             </a>
          </li>
 

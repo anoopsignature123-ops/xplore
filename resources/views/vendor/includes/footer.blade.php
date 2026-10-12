@@ -194,6 +194,11 @@
            this.value = this.value.replace(/[^0-9]/g, '');
        }
    });
+
+   // Close mobile sidebar when backdrop is clicked
+   $('#vpSidebarOverlay').on('click', function () {
+       $('#pageWrapper').addClass('sidebar-open');
+   });
 </script>
 </body>
 </html>

@@ -127,6 +127,16 @@
 
 <script>
    $(function() {
+     // Sidebar overlay click for responsive mobile drawer
+     $('#vpSidebarOverlay').on('click', function () {
+       $('#pageWrapper').removeClass('sidebar-open');
+       $('.page-sidebar').removeClass('open');
+     });
+
+     $('.toggle-sidebar, .close-btn.toggle-sidebar').on('click', function () {
+       $('#pageWrapper').toggleClass('sidebar-open');
+     });
+
      var Toast = Swal.mixin({
        toast: true,
        position: 'top-end',
@@ -138,26 +148,22 @@
        setTimeout(function() {
          toastr.success('{{ session('success') }}', '', {
            "progressBar": true,
-           "timeOut": 2000,
+           "timeOut": 2500,
            "closeButton": true,
-           "style": {
-             "color": "white",
-           }
+           "positionClass": "toast-top-center"
          });
-       }, 1000);
+       }, 500);
      @endif
    
      @if(session('error'))
        setTimeout(function() {
          toastr.error('{{ session('error') }}', '', {
            "progressBar": true,
-           "timeOut": 2000,
+           "timeOut": 2500,
            "closeButton": true,
-           "style": {
-             "color": "white",
-           }
+           "positionClass": "toast-top-center"
          });
-       }, 1000);
+       }, 500);
      @endif
    });
 </script>

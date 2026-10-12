@@ -18,5 +18,7 @@
       <link rel="stylesheet" href="{{ asset('assets/admin/css/bulk-style.css') }}">
       <link id="color" rel="stylesheet" href="{{ asset('assets/admin/css/color-1.css') }}" media="screen">
       <link rel="stylesheet" href="{{ asset('assets/admin/css/style.css') }}">
+      <link rel="stylesheet" href="{{ asset('assets/admin/css/vendor-panel.css') }}?v={{ time() }}">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+      @stack('styles')
    </head>

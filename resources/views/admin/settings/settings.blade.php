@@ -1,162 +1,162 @@
 @extends('admin.includes.layout')
 @section('title', $page_title)
 @section('content')
-<!-- Page sidebar end-->
-<div class="page-body">
-   <div class="container-fluid">
-      <div class="page-title">
+   <!-- Page sidebar end-->
+   <div class="page-body">
+      <div class="container-fluid">
+         <div class="page-title">
+            <div class="row">
+               <div class="col-sm-6 col-12">
+               </div>
+               <div class="col-sm-6 col-12">
+                  <ol class="breadcrumb">
+                     <li class="breadcrumb-item"><a href="{{ route('admin.index') }}"> <i class="fa-solid fa-home me-2"></i></a></li>
+                     <li class="breadcrumb-item">{{ $page_title }}</li>
+                  </ol>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Container-fluid starts-->
+      <div class="container-fluid">
          <div class="row">
-            <div class="col-sm-6 col-12">
-            </div>
-            <div class="col-sm-6 col-12">
-               <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="{{ route('admin.index') }}"> <i class="fa-solid fa-home me-2"></i></a></li>
-                  <li class="breadcrumb-item">{{ $page_title }}</li>
-               </ol>
-            </div>
-         </div>
-      </div>
-   </div>
-   <!-- Container-fluid starts-->
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-md-12">
-            <div class="card shadow-lg border-0 rounded-3"> 
-               <!-- Card Header -->
-               <div class="card-header bg-light border-bottom-0 py-3 d-flex justify-content-between align-items-center rounded-top">
-                  <h3 class="mb-0 fw-bold text-primary">
-                     {{ $page_title }}
-                  </h3>
-                  
-               </div>
-               <div class="border-top"></div>
-               <div class="card-body p-4">
-                  <form id="saveForm" class="theme-form row g-3" enctype="multipart/form-data">
-                     <input type="hidden" name="id" id="id" value="{{ $settings->id ?? '' }}">
-                     <input type="hidden" name="old_logo" id="old_logo" value="{{ $settings->logo ?? '' }}">
-                     <input type="hidden" name="old_favicon" id="old_favicon" value="{{ $settings->favicon ?? '' }}">
-                     @csrf
-                     <div class="col-12 col-md-4">
-                        <label class="form-label" for="company_name">Company Name</label>
-                        <input type="text" class="form-control textInput" id="company_name" name="company_name"
-                           value="{{ $settings->company_name ?? '' }}" placeholder="Enter company name">
-                     </div>
-                     <div class="col-12 col-md-4">
-                        <label class="form-label" for="email_id">Email</label>
-                        <input type="email" class="form-control" id="email_id" name="email_id"
-                           value="{{ $settings->email_id ?? '' }}" placeholder="Enter email">
-                     </div>
-                     <div class="col-12 col-md-4">
-                        <label class="form-label" for="phone_no">Phone No</label>
-                        <input type="text" class="form-control numberInput" id="phone_no" name="phone_no" minlength="10" maxlength="10"
-                           value="{{ $settings->phone_no ?? '' }}" placeholder="Enter phone number">
-                     </div>
-                     <div class="col-12 col-md-4">
-                        <label class="form-label" for="whatsapp_no">WhatsApp No</label>
-                        <input type="text" class="form-control numberInput" id="whatsapp_no" name="whatsapp_no" minlength="10" maxlength="10"
-                           value="{{ $settings->whatsapp_no ?? '' }}" placeholder="Enter WhatsApp number">
-                     </div>
-                     <div class="col-12 col-md-4">
-                        <label class="form-label" for="facebook_link">Facebook Link</label>
-                        <input type="url" class="form-control" id="facebook_link" name="facebook_link"
-                           value="{{ $settings->facebook_link ?? '' }}" placeholder="Facebook link">
-                     </div>
-                     <div class="col-12 col-md-4">
-                        <label class="form-label" for="instagram_link">Instagram Link</label>
-                        <input type="url" class="form-control" id="instagram_link" name="instagram_link"
-                           value="{{ $settings->instagram_link ?? '' }}" placeholder="Instagram link">
-                     </div>
-                     <div class="col-12 col-md-4">
-                        <label class="form-label" for="twitter_link">Twitter Link</label>
-                        <input type="url" class="form-control" id="twitter_link" name="twitter_link"
-                           value="{{ $settings->twitter_link ?? '' }}" placeholder="Twitter link">
-                     </div>
-                     <div class="col-12 col-md-4">
-                        <label class="form-label" for="youtube_link">Youtube Link</label>
-                        <input type="url" class="form-control" id="youtube_link" name="youtube_link"
-                           value="{{ $settings->youtube_link ?? '' }}" placeholder="Youtube link">
-                     </div>
-                     <div class="col-12">
-                        <label class="form-label" for="address">Address</label>
-                        <textarea class="form-control" id="address" name="address" rows="1"
-                           placeholder="Enter address">{{ $settings->address ?? '' }}</textarea>
-                     </div>
-                     <div class="col-12"> 
-                        <label class="form-label" for="copyright">Copyright</label>
-                        <input type="text" class="form-control" id="copyright" name="copyright"
-                           value="{{ $settings->copyright ?? '' }}" placeholder="© Your Company">
-                     </div>
+            <div class="col-md-12">
+               <div class="card shadow-lg border-0 rounded-3"> 
+                  <!-- Card Header -->
+                  <div class="card-header bg-light border-bottom-0 py-3 d-flex justify-content-between align-items-center rounded-top">
+                     <h3 class="mb-0 fw-bold text-primary">
+                        {{ $page_title }}
+                     </h3>
 
-                     <!-- Survey Payment Percentage Settings -->
-                     <div class="col-12 mt-4">
-                        <h5 class="fw-bold text-primary border-bottom pb-2 mb-2"><i class="fa-solid fa-percent me-2"></i>Survey Partial Payment Settings</h5>
-                     </div>
-                     <div class="col-12 col-md-6">
-                        <label class="form-label" for="survey_booking_percentage">Survey Booking Advance Payment (%)</label>
-                        <input type="number" step="0.01" min="0" max="100" class="form-control" id="survey_booking_percentage" name="survey_booking_percentage"
-                           value="{{ $settings->survey_booking_percentage ?? '40' }}" placeholder="e.g. 40">
-                        <small class="text-muted">Advance percentage paid at booking time (Default: 40%)</small>
-                     </div>
-                     <div class="col-12 col-md-6">
-                        <label class="form-label" for="survey_completion_percentage">Survey Final Completion Payment (%)</label>
-                        <input type="number" step="0.01" min="0" max="100" class="form-control" id="survey_completion_percentage" name="survey_completion_percentage" readonly style="background-color: #e2e8f0 !important; color: #0f172a !important; font-weight: 700;"
-                           value="{{ $settings->survey_completion_percentage ?? '60' }}" placeholder="e.g. 60">
-                        <small class="text-muted">Remaining percentage paid after survey completion (Auto calculated: 100 - Booking %)</small>
-                     </div>
-                     <div class="col-12 col-md-12 mt-2">
-                        <label class="form-label" for="survey_open_hours">Vendor Open Acceptance Window (Hours)</label>
-                        <input type="number" step="0.5" min="0.5" max="72" class="form-control" id="survey_open_hours" name="survey_open_hours"
-                           value="{{ $settings->survey_open_hours ?? '3' }}" placeholder="e.g. 3">
-                        <small class="text-muted">Time duration (in hours) a new survey remains open for all vendors to accept. If unaccepted after this time, Admin must manually assign it. (Default: 3 hours)</small>
-                     </div>
-                     <div class="col-12 col-md-4">
-                        <label class="form-label" for="logo">Logo</label>
-                        <input type="file" class="form-control" id="logo" name="logo" accept=".jpg,.jpeg,.png"
-                           onchange="previewImage(this,'logoPreview')">
-                        <div class="mt-2">
-                           <div class="mt-3">
-                              <a href="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}" target="_blank">
-                              <img id="logoPreview"
-                                 src="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}"
-                                 alt="Image"
-                                 class="img-thumbnail border rounded shadow-sm p-1"
-                                 style="max-height: 100px; {{ empty($settings->logo) ? 'display:none;' : '' }}">
-                              </a>
+                  </div>
+                  <div class="border-top"></div>
+                  <div class="card-body p-4">
+                     <form id="saveForm" class="theme-form row g-3" enctype="multipart/form-data">
+                        <input type="hidden" name="id" id="id" value="{{ $settings->id ?? '' }}">
+                        <input type="hidden" name="old_logo" id="old_logo" value="{{ $settings->logo ?? '' }}">
+                        <input type="hidden" name="old_favicon" id="old_favicon" value="{{ $settings->favicon ?? '' }}">
+                        @csrf
+                        <div class="col-12 col-md-4">
+                           <label class="form-label" for="company_name">Company Name</label>
+                           <input type="text" class="form-control textInput" id="company_name" name="company_name"
+                              value="{{ $settings->company_name ?? '' }}" placeholder="Enter company name">
+                        </div>
+                        <div class="col-12 col-md-4">
+                           <label class="form-label" for="email_id">Email</label>
+                           <input type="email" class="form-control" id="email_id" name="email_id"
+                              value="{{ $settings->email_id ?? '' }}" placeholder="Enter email">
+                        </div>
+                        <div class="col-12 col-md-4">
+                           <label class="form-label" for="phone_no">Phone No</label>
+                           <input type="text" class="form-control numberInput" id="phone_no" name="phone_no" minlength="10" maxlength="10"
+                              value="{{ $settings->phone_no ?? '' }}" placeholder="Enter phone number">
+                        </div>
+                        <div class="col-12 col-md-4">
+                           <label class="form-label" for="whatsapp_no">WhatsApp No</label>
+                           <input type="text" class="form-control numberInput" id="whatsapp_no" name="whatsapp_no" minlength="10" maxlength="10"
+                              value="{{ $settings->whatsapp_no ?? '' }}" placeholder="Enter WhatsApp number">
+                        </div>
+                        <div class="col-12 col-md-4">
+                           <label class="form-label" for="facebook_link">Facebook Link</label>
+                           <input type="url" class="form-control" id="facebook_link" name="facebook_link"
+                              value="{{ $settings->facebook_link ?? '' }}" placeholder="Facebook link">
+                        </div>
+                        <div class="col-12 col-md-4">
+                           <label class="form-label" for="instagram_link">Instagram Link</label>
+                           <input type="url" class="form-control" id="instagram_link" name="instagram_link"
+                              value="{{ $settings->instagram_link ?? '' }}" placeholder="Instagram link">
+                        </div>
+                        <div class="col-12 col-md-4">
+                           <label class="form-label" for="twitter_link">Twitter Link</label>
+                           <input type="url" class="form-control" id="twitter_link" name="twitter_link"
+                              value="{{ $settings->twitter_link ?? '' }}" placeholder="Twitter link">
+                        </div>
+                        <div class="col-12 col-md-4">
+                           <label class="form-label" for="youtube_link">Youtube Link</label>
+                           <input type="url" class="form-control" id="youtube_link" name="youtube_link"
+                              value="{{ $settings->youtube_link ?? '' }}" placeholder="Youtube link">
+                        </div>
+                        <div class="col-12">
+                           <label class="form-label" for="address">Address</label>
+                           <textarea class="form-control" id="address" name="address" rows="1"
+                              placeholder="Enter address">{{ $settings->address ?? '' }}</textarea>
+                        </div>
+                        <div class="col-12"> 
+                           <label class="form-label" for="copyright">Copyright</label>
+                           <input type="text" class="form-control" id="copyright" name="copyright"
+                              value="{{ $settings->copyright ?? '' }}" placeholder="© Your Company">
+                        </div>
+
+                        <!-- Survey Payment Percentage Settings -->
+                        <div class="col-12 mt-4">
+                           <h5 class="fw-bold text-primary border-bottom pb-2 mb-2"><i class="fa-solid fa-percent me-2"></i>Survey Partial Payment Settings</h5>
+                        </div>
+                        <div class="col-12 col-md-6">
+                           <label class="form-label" for="survey_booking_percentage">Survey Booking Advance Payment (%)</label>
+                           <input type="number" step="0.01" min="0" max="100" class="form-control" id="survey_booking_percentage" name="survey_booking_percentage"
+                              value="{{ $settings->survey_booking_percentage ?? '40' }}" placeholder="e.g. 40">
+                           <small class="text-muted">Advance percentage paid at booking time (Default: 40%)</small>
+                        </div>
+                        <div class="col-12 col-md-6">
+                           <label class="form-label" for="survey_completion_percentage">Survey Final Completion Payment (%)</label>
+                           <input type="number" step="0.01" min="0" max="100" class="form-control" id="survey_completion_percentage" name="survey_completion_percentage" readonly style="background-color: #e2e8f0 !important; color: #0f172a !important; font-weight: 700;"
+                              value="{{ $settings->survey_completion_percentage ?? '60' }}" placeholder="e.g. 60">
+                           <small class="text-muted">Remaining percentage paid after survey completion (Auto calculated: 100 - Booking %)</small>
+                        </div>
+                        <div class="col-12 col-md-12 mt-2">
+                           <label class="form-label" for="survey_open_hours">Vendor Open Acceptance Window (Hours)</label>
+                           <input type="number" step="0.5" min="0.5" max="72" class="form-control" id="survey_open_hours" name="survey_open_hours"
+                              value="{{ $settings->survey_open_hours ?? '3' }}" placeholder="e.g. 3">
+                           <small class="text-muted">Time duration (in hours) a new survey remains open for all vendors to accept. If unaccepted after this time, Admin must manually assign it. (Default: 3 hours)</small>
+                        </div>
+                        <div class="col-12 col-md-4">
+                           <label class="form-label" for="logo">Logo</label>
+                           <input type="file" class="form-control" id="logo" name="logo" accept=".jpg,.jpeg,.png"
+                              onchange="previewImage(this,'logoPreview')">
+                           <div class="mt-2">
+                              <div class="mt-3">
+                                 <a href="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}" target="_blank">
+                                 <img id="logoPreview"
+                                    src="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}"
+                                    alt="Image"
+                                    class="img-thumbnail border rounded shadow-sm p-1"
+                                    style="max-height: 100px; {{ empty($settings->logo) ? 'display:none;' : '' }}">
+                                 </a>
+                              </div>
                            </div>
                         </div>
-                     </div>
-                     <div class="col-12 col-md-4">
-                        <label class="form-label" for="favicon">Favicon</label>
-                        <input type="file" class="form-control" id="favicon" name="favicon" accept=".ico,.png"
-                           onchange="previewImage(this,'faviconPreview')">
-                        <div class="mt-2">
-                           <div class="mt-3">
-                              <a href="{{ !empty($settings->favicon) ? asset($settings->favicon) : '' }}" target="_blank">
-                              <img id="faviconPreview"
-                                 src="{{ !empty($settings->favicon) ? asset($settings->favicon) : '' }}"
-                                 alt="Image"
-                                 class="img-thumbnail border rounded shadow-sm p-1"
-                                 style="max-height: 100px; {{ empty($settings->favicon) ? 'display:none;' : '' }}">
-                              </a>
+                        <div class="col-12 col-md-4">
+                           <label class="form-label" for="favicon">Favicon</label>
+                           <input type="file" class="form-control" id="favicon" name="favicon" accept=".ico,.png"
+                              onchange="previewImage(this,'faviconPreview')">
+                           <div class="mt-2">
+                              <div class="mt-3">
+                                 <a href="{{ !empty($settings->favicon) ? asset($settings->favicon) : '' }}" target="_blank">
+                                 <img id="faviconPreview"
+                                    src="{{ !empty($settings->favicon) ? asset($settings->favicon) : '' }}"
+                                    alt="Image"
+                                    class="img-thumbnail border rounded shadow-sm p-1"
+                                    style="max-height: 100px; {{ empty($settings->favicon) ? 'display:none;' : '' }}">
+                                 </a>
+                              </div>
                            </div>
                         </div>
-                     </div>
+                  </div>
+                  <div class="col-12 text-start mt-3 mx-3 mb-3">
+                     <button type="reset" class="btn btn-info btn-sm px-4 me-2">
+                        <i class="fa-solid fa-rotate-left me-1"></i> Reset
+                     </button>
+                     <button type="submit" id="submitBtn" class="btn btn-primary btn-sm px-4">
+                        <i class="fas fa-save me-1"></i> Save Settings
+                     </button>
+                  </div>
+                  </form>
                </div>
-               <div class="col-12 text-start mt-3 mx-3 mb-3">
-                  <button type="reset" class="btn btn-info btn-sm px-4 me-2">
-                     <i class="fa-solid fa-rotate-left me-1"></i> Reset
-                  </button>
-                  <button type="submit" id="submitBtn" class="btn btn-primary btn-sm px-4">
-                     <i class="fas fa-save me-1"></i> Save Settings
-                  </button>
-               </div>
-               </form>
             </div>
          </div>
       </div>
    </div>
-</div>
-</div>
+   </div>
 @endsection
 @push('scripts')
 <script>

@@ -9,72 +9,84 @@
       <div class="loader"><span></span><span></span><span></span><span></span><span></span></div>
     </div>
     <div class="page-wrapper compact-wrapper" id="pageWrapper">   
-      <header class="page-header row">
-        <div class="logo-wrapper d-flex align-items-center col-auto">
-          
-        <a href="{{ route('admin.index') }}">	
-          <img class="light-logo img-fluid" src="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}" alt="{{ $settings -> company_name ?? '' }}" style="width:auto;height:60px;">
-          <img class="dark-logo img-fluid" src="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}" alt="{{ $settings -> company_name  ?? '' }}" style="width:auto;height:60px;">
-        </a>
-     
-     
-          <a class="close-btn toggle-sidebar" href="javascript:void(0)">
-            <svg class="svg-color">
-              <use href="{{ config('app.admin_assets') }}svg/iconly-sprite.svg#Category"></use>
-            </svg></a></div>
-        <div class="page-main-header col">
-          <div class="header-left">
+      <header class="page-header">
+        <div class="logo-wrapper">
+          <a href="{{ route('admin.index') }}" class="admin-brand-link">	
+            <img class="img-fluid" src="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}" alt="{{ $settings->company_name ?? 'Xplore' }}">
+          </a>
+          <a class="close-btn toggle-sidebar" href="javascript:void(0)" title="Toggle Menu">
+            <i class="fa-solid fa-bars-staggered"></i>
+          </a>
+        </div>
+
+        <div class="page-main-header">
+          <div class="header-left d-none d-lg-flex align-items-center gap-2">
+            <span class="admin-header-pill">
+              <i class="fas fa-shield-halved text-success"></i> Master Admin Console
+            </span>
+            <a href="{{ url('/') }}" target="_blank" class="admin-header-link" title="Open Public Website">
+              <i class="fas fa-arrow-up-right-from-square"></i> Visit Website
+            </a>
           </div>
 
+          <div class="nav-right ms-auto">
+            <ul class="header-right d-flex align-items-center list-unstyled m-0 gap-2"> 
+              <!-- Clear Cache quick button -->
+              <li>
+                <a href="{{ route('clean.system') }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 d-none d-sm-inline-flex align-items-center gap-1 shadow-sm" title="Clear Application Cache">
+                  <i class="fas fa-broom text-primary"></i> <span class="small fw-semibold">Clear Cache</span>
+                </a>
+              </li>
 
-          <div class="nav-right">
-            <ul class="header-right"> 
-             <li class="custom-dropdown">
-            </li>
-
-
+              <!-- Profile Dropdown -->
               <li class="profile-nav custom-dropdown">
                 <div class="user-wrap">
-                  <div class="user-img"><img src="{{ !empty(auth()->user()->profile_pic) ? asset(auth()->user()->profile_pic) : asset($settings->favicon ?? '') }}" alt="{{ auth()->user()->name }}"></div>
-                  <div class="user-content">
-                    @if(auth()->check())
-                    <h6>{{ auth()->user()->name }}</h6>
+                  <div class="user-img">
+                    @if(!empty(auth()->user()->profile_pic))
+                      <img src="{{ asset(auth()->user()->profile_pic) }}" alt="{{ auth()->user()->name }}">
+                    @else
+                      <div class="w-100 h-100 rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="background: linear-gradient(135deg, #0d9488, #0f766e); font-size: 13px;">
+                        {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                      </div>
                     @endif
-                    <p class="mb-0">Admin<i class="fa-solid fa-chevron-down"></i></p>
                   </div>
+                  <div class="user-content text-start">
+                    <h6>{{ auth()->user()->name ?? 'Administrator' }}</h6>
+                    <span class="ap-role-pill">
+                      <i class="fas fa-crown" style="font-size: 8px;"></i> Super Admin
+                    </span>
+                  </div>
+                  <i class="fa-solid fa-chevron-down text-muted ms-1 d-none d-sm-inline-block" style="font-size: 10px;"></i>
                 </div>
-                <div class="custom-menu overflow-hidden">
-                  <ul class="profile-body">
-                    <li class="d-flex"> 
-                      <svg class="svg-color">
-                        <use href="{{ config('app.admin_assets') }}svg/iconly-sprite.svg#Message"></use>
-                      </svg><a class="ms-2" href="{{ route('admin.profile') }}">Profile</a>
+                <div class="custom-menu overflow-hidden shadow">
+                  <ul class="profile-body p-1 m-0 list-unstyled">
+                    <li> 
+                      <a href="{{ route('admin.profile') }}">
+                        <i class="fas fa-user-gear text-primary" style="width: 18px;"></i> My Profile
+                      </a>
                     </li>
 
                     @can('web-setting')
-                    <li class="d-flex"> 
-                      <svg class="svg-color">
-                        <use href="{{ config('app.admin_assets') }}svg/iconly-sprite.svg#Document"></use>
-                      </svg><a class="ms-2" href="{{ route('admin.websettings') }}">Settings</a> 
+                    <li> 
+                      <a href="{{ route('admin.websettings') }}">
+                        <i class="fas fa-sliders text-info" style="width: 18px;"></i> Web Settings
+                      </a> 
                     </li>
-                     @endcan
+                    @endcan
 
-
-
-                      <li class="d-flex"> 
-                        <svg class="svg-color">
-                        <use href="{{ config('app.admin_assets') }}svg/iconly-sprite.svg#Document"></use>
-                        </svg>
-                        <a class="ms-2" target="_blank" href="{{ route('clean.system') }}">Clear Cache</a>
+                    <li> 
+                      <a target="_blank" href="{{ route('clean.system') }}">
+                        <i class="fas fa-arrows-rotate text-warning" style="width: 18px;"></i> Clear Cache
+                      </a>
                     </li>
 
-                    
-                    <li class="d-flex"> 
-                      <svg class="svg-color">
-                        <use href="{{ config('app.admin_assets') }}svg/iconly-sprite.svg#Login"></use>
-                      </svg><a class="ms-2" href="{{ route('admin.logout') }}">Log Out</a>
-                    </li>
+                    <li class="border-top my-1"></li>
 
+                    <li> 
+                      <a href="{{ route('admin.logout') }}" class="text-danger">
+                        <i class="fas fa-right-from-bracket text-danger" style="width: 18px;"></i> Log Out
+                      </a>
+                    </li>
                   </ul>
                 </div>
               </li>

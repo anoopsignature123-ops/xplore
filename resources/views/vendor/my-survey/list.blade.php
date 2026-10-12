@@ -14,9 +14,17 @@
    .select2-container--default .select2-selection--single .select2-selection__arrow {
        height: 36px !important;
    }
+   .nav-pills .nav-link {
+       border-radius: 20px !important;
+       padding: 8px 18px !important;
+       font-weight: 600 !important;
+       color: #64748b;
+       transition: all 0.2s ease;
+   }
    .nav-pills .nav-link.active {
-       background-color: #0d6efd !important;
+       background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important;
        color: #fff !important;
+       box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3) !important;
    }
 </style>
 @endpush

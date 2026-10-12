@@ -4,47 +4,63 @@
       <div class="loader"><span></span><span></span><span></span><span></span><span></span></div>
     </div>
     <div class="page-wrapper compact-wrapper" id="pageWrapper">   
-      <header class="page-header row">
-        <div class="logo-wrapper d-flex align-items-center col-auto">
-          <a href="{{ route('builder.index') }}" class="d-flex align-items-center me-2 text-decoration-none">	
-            <img class="light-logo img-fluid" src="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}" alt="{{ $settings->company_name ?? '' }}" style="width:auto;height:50px;">
-            <img class="dark-logo img-fluid" src="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}" alt="{{ $settings->company_name ?? '' }}" style="width:auto;height:50px;">
+      <header class="page-header">
+        <div class="logo-wrapper">
+          <a href="{{ route('builder.index') }}" class="vendor-brand-link">	
+            <img src="{{ !empty($settings->logo) ? asset($settings->logo) : '' }}" alt="{{ $settings->company_name ?? 'Xplore' }}" class="vendor-logo-img">
           </a>
-          <span class="badge text-white px-3 py-2 rounded-2 shadow-sm d-none d-sm-inline-block" style="background-color: #308e87 !important; color: #ffffff !important; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px;">
-            <i class="fas fa-city me-1"></i> BUILDER PORTAL
-          </span>
-          <a class="close-btn toggle-sidebar ms-2" href="javascript:void(0)">
-            <svg class="svg-color">
-              <use href="{{ config('app.admin_assets') }}svg/iconly-sprite.svg#Category"></use>
-            </svg>
+          <a class="close-btn toggle-sidebar" href="javascript:void(0)" title="Toggle Menu">
+            <i class="fa-solid fa-bars-staggered"></i>
           </a>
         </div>
-        <div class="page-main-header col">
-          <div class="header-left"></div>
-          <div class="nav-right">
-            <ul class="header-right"> 
+
+        <div class="page-main-header">
+          <div class="header-left d-none d-lg-flex align-items-center">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 d-inline-flex align-items-center fw-semibold">
+              <i class="fas fa-city me-2"></i> Verified Builder & Contractor Portal
+            </span>
+          </div>
+
+          <div class="nav-right ms-auto">
+            <ul class="header-right d-flex align-items-center m-0 p-0 list-unstyled"> 
               <li class="profile-nav custom-dropdown">
                 <div class="user-wrap">
                   <div class="user-img">
-                    <img src="{{ !empty(auth('builder')->user()->profile_image) ? asset(auth('builder')->user()->profile_image) : asset($settings->favicon ?? '') }}" alt="{{ auth('builder')->user()->firm_name ?? 'Builder' }}" class="rounded-circle" style="height:40px;width:40px;object-fit:cover;">
+                    <img src="{{ !empty(auth('builder')->user()->profile_image) ? asset(auth('builder')->user()->profile_image) : asset($settings->favicon ?? '') }}" alt="{{ auth('builder')->user()->firm_name ?? 'Builder' }}">
                   </div>
-                  <div class="user-content">
+                  <div class="user-content text-start">
                     @if(auth('builder')->check())
-                      <h6>{{ auth('builder')->user()->firm_name }}</h6>
+                    <h6>{{ auth('builder')->user()->firm_name }}</h6>
                     @endif
-                    <p class="mb-0">Builder / Contractor <i class="fa-solid fa-chevron-down"></i></p>
+                    <span class="vp-cat-pill">
+                      <i class="fas fa-hammer" style="font-size: 9px;"></i>
+                      {{ (auth('builder')->check() && auth('builder')->user()->category) ? auth('builder')->user()->category->name : 'Builder / Contractor' }}
+                    </span>
                   </div>
+                  <i class="fa-solid fa-chevron-down text-muted ms-1 d-none d-sm-inline-block" style="font-size: 11px;"></i>
                 </div>
                 <div class="custom-menu overflow-hidden">
-                  <ul class="profile-body">
-                    <li class="d-flex mb-2"> 
-                      <i class="fas fa-chart-line me-2 text-primary"></i><a class="ms-2" href="{{ route('builder.index') }}">Dashboard</a>
+                  <ul class="profile-body p-1 m-0 list-unstyled">
+                    <li class="d-flex align-items-center mb-1"> 
+                      <a class="d-flex align-items-center text-dark" href="{{ route('builder.index') }}">
+                        <i class="fas fa-tachometer-alt me-2 text-primary" style="width: 18px;"></i> Dashboard
+                      </a>
                     </li>
-                    <li class="d-flex mb-2"> 
-                      <i class="fas fa-user-tie me-2 text-info"></i><a class="ms-2" href="{{ route('builder.profile') }}">Profile & Showcase</a>
+                    <li class="d-flex align-items-center mb-1"> 
+                      <a class="d-flex align-items-center text-dark" href="{{ route('builder.inquiry.list') }}">
+                        <i class="fas fa-comments me-2 text-info" style="width: 18px;"></i> Customer Inquiries
+                      </a>
                     </li>
-                    <li class="d-flex"> 
-                      <i class="fas fa-power-off me-2 text-danger"></i><a class="ms-2 text-danger" href="{{ route('builder.logout') }}">Log Out</a>
+                    <li class="d-flex align-items-center mb-1"> 
+                      <a class="d-flex align-items-center text-dark" href="{{ route('builder.profile') }}">
+                        <i class="fas fa-user-gear me-2 text-success" style="width: 18px;"></i> Profile & Showcase
+                      </a>
+                    </li>
+                    <li class="border-top my-1"></li>
+                    <li class="d-flex align-items-center"> 
+                      <a class="d-flex align-items-center text-danger" href="{{ route('builder.logout') }}">
+                        <i class="fas fa-right-from-bracket me-2 text-danger" style="width: 18px;"></i> Log Out
+                      </a>
                     </li>
                   </ul>
                 </div>

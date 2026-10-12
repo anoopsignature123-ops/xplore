@@ -3,57 +3,66 @@
 @section('title', $page_title)
 @section('content')
 <div class="page-body">
-   <div class="container-fluid">
-      <div class="page-title">
-         <div class="row">
-            <div class="col-sm-6 col-12">
-               <h4 class="m-0">{{ $page_title }}</h4>
-            </div>
-            <div class="col-sm-6 col-12 text-end">
-               <a href="{{ route('builder.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i> Dashboard</a>
-            </div>
+   <div class="container-fluid p-0">
+      
+      <!-- Top Title Bar -->
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+         <div>
+            <h3 class="fw-bold text-dark mb-1" style="font-family: 'Outfit', sans-serif;">
+               <i class="fas fa-comments text-primary me-2"></i> {{ $page_title }}
+            </h3>
+            <p class="text-muted small mb-0">Review client inquiries, phone requests, and manage follow-up statuses.</p>
+         </div>
+         <div>
+            <a href="{{ route('builder.index') }}" class="btn btn-outline-secondary rounded-pill px-3 py-2 fw-semibold shadow-sm">
+               <i class="fas fa-arrow-left me-1"></i> Dashboard
+            </a>
          </div>
       </div>
-   </div>
-   <div class="container-fluid">
-      <div class="row">
-         <div class="col-sm-12">
-            <div class="card shadow-lg border-0 rounded-3">
-               <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
-                  <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-envelope-open-text me-2"></i> {{ $page_title }}</h5>
-               </div>
-               <div class="card-body">
-                  <div class="row g-3 mb-3">
-                     <div class="col-md-3">
-                        <label class="form-label fw-bold"><i class="fas fa-filter text-primary me-1"></i> Filter Status</label>
-                        <select id="filter-status" class="form-select">
-                           <option value="">All Statuses</option>
-                           <option value="pending">Pending</option>
-                           <option value="contacted">Contacted</option>
-                           <option value="closed">Closed</option>
-                        </select>
-                     </div>
-                  </div>
 
-                  <div class="table-responsive">
-                     <table class="table table-bordered table-striped" id="builder-inquiries-table">
-                        <thead>
-                           <tr>
-                              <th>#</th>
-                              <th><i class="fas fa-user me-1 text-primary"></i> Customer Name</th>
-                              <th><i class="fas fa-phone-alt me-1 text-success"></i> Phone</th>
-                              <th><i class="fas fa-tag me-1 text-info"></i> Inquiry Type</th>
-                              <th><i class="fas fa-calendar-alt me-1 text-warning"></i> Date</th>
-                              <th><i class="fas fa-tasks me-1 text-secondary"></i> Status</th>
-                              <th><i class="fas fa-cogs me-1 text-dark"></i> Action</th>
-                           </tr>
-                        </thead>
-                     </table>
-                  </div>
+      <!-- Inquiries Table Card -->
+      <div class="vendor-table-card">
+         <div class="card-header flex-wrap gap-3">
+            <div class="card-title-group">
+               <div class="card-icon-pill ongoing-pill">
+                  <i class="fas fa-filter"></i>
                </div>
+               <div>
+                  <h5 class="card-header-title">All Customer Leads</h5>
+               </div>
+            </div>
+
+            <!-- Filter Status Dropdown -->
+            <div class="d-flex align-items-center gap-2 ms-auto">
+               <span class="text-muted small fw-bold text-nowrap"><i class="fas fa-sliders me-1"></i> Filter:</span>
+               <select id="filter-status" class="form-select form-select-sm rounded-pill" style="min-width: 150px;">
+                  <option value="">All Statuses</option>
+                  <option value="pending">Pending Only</option>
+                  <option value="contacted">Contacted</option>
+                  <option value="closed">Closed</option>
+               </select>
+            </div>
+         </div>
+
+         <div class="card-body p-3">
+            <div class="table-responsive">
+               <table class="table table-hover align-middle w-100" id="builder-inquiries-table">
+                  <thead>
+                     <tr>
+                        <th style="width: 50px;">#</th>
+                        <th><i class="fas fa-user me-1 text-primary"></i> Customer Name</th>
+                        <th><i class="fas fa-phone-alt me-1 text-success"></i> Phone</th>
+                        <th><i class="fas fa-tag me-1 text-info"></i> Inquiry Type</th>
+                        <th><i class="fas fa-calendar-alt me-1 text-warning"></i> Received Date</th>
+                        <th><i class="fas fa-tasks me-1 text-secondary"></i> Status</th>
+                        <th><i class="fas fa-sliders me-1 text-dark"></i> Update Status</th>
+                     </tr>
+                  </thead>
+               </table>
             </div>
          </div>
       </div>
+
    </div>
 </div>
 @endsection
@@ -65,6 +74,7 @@ $(document).ready(function() {
     var table = $('#builder-inquiries-table').DataTable({
         processing: true,
         serverSide: true,
+        responsive: true,
         ajax: {
             url: "{{ route('builder.inquiry.getRecords') }}",
             data: function(d) {
@@ -79,7 +89,15 @@ $(document).ready(function() {
             {data: 'created_at', name: 'created_at'},
             {data: 'status', name: 'status'},
             {data: 'action', name: 'action', orderable: false, searchable: false}
-        ]
+        ],
+        language: {
+            search: "_INPUT_",
+            searchPlaceholder: "Search inquiries...",
+            paginate: {
+               next: '<i class="fas fa-chevron-right"></i>',
+               previous: '<i class="fas fa-chevron-left"></i>'
+            }
+        }
     });
 
     $('#filter-status').change(function() {
