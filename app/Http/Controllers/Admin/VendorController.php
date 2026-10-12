@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Models\Vendor;
+use App\Models\VendorCategory;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 
@@ -14,17 +15,22 @@ class VendorController extends Controller
     public function index()
     {
         $page_title = 'Vendor List';
-        return view('admin.vendor.list', compact('page_title'));
+        $categories = VendorCategory::where('status', 'Active')->orderBy('name', 'asc')->get();
+        return view('admin.vendor.list', compact('page_title', 'categories'));
     }
 
     public function getRecords(Request $request)
     {
         if ($request->ajax()) {
 
-            $query = Vendor::orderBy('id', 'desc');
+            $query = Vendor::with('category')->orderBy('id', 'desc');
 
             if ($request->filled('status')) {
                 $query->where('status', $request->status);
+            }
+
+            if ($request->filled('vendor_category_id')) {
+                $query->where('vendor_category_id', $request->vendor_category_id);
             }
 
             if ($request->filled('name')) {
@@ -62,10 +68,32 @@ class VendorController extends Controller
                     if (!empty($row->profile_image)) {
                         $imgUrl = asset($row->profile_image);
                         return '<a href="' . $imgUrl . '" target="_blank">
-                                    <img src="' . $imgUrl . '" alt="' . e($row->name) . '" width="60" height="60" style="object-fit:cover;border-radius:6px;">
+                                    <img src="' . $imgUrl . '" alt="' . e($row->name) . '" width="50" height="50" style="object-fit:cover;border-radius:6px;">
                                 </a>';
                     }
                     return 'N/A';
+                })
+
+                ->editColumn('gst_no', function ($row) {
+                    return $row->gst_no ? '<span class="badge bg-light text-dark border">' . e($row->gst_no) . '</span>' : '<span class="text-muted">N/A</span>';
+                })
+
+                ->editColumn('pan_no', function ($row) {
+                    return $row->pan_no ? '<span class="badge bg-light text-dark border">' . e($row->pan_no) . '</span>' : '<span class="text-muted">N/A</span>';
+                })
+
+                ->editColumn('proof_image', function ($row) {
+                    if (!empty($row->proof_image)) {
+                        $imgUrl = asset($row->proof_image);
+                        return '<a href="' . $imgUrl . '" target="_blank" class="btn btn-xs btn-outline-info">
+                                    <i class="fas fa-file-image me-1"></i> View Proof
+                                </a>';
+                    }
+                    return '<span class="badge bg-warning text-dark">Missing</span>';
+                })
+
+                ->addColumn('category_name', function ($row) {
+                    return $row->category ? '<span class="badge bg-primary text-white">' . e($row->category->name) . '</span>' : '<span class="text-muted">N/A</span>';
                 })
 
                 ->editColumn('vendor_type', function ($row) {
@@ -91,7 +119,7 @@ class VendorController extends Controller
                     return $btn;
                 })
 
-                ->rawColumns(['profile_image', 'status', 'action'])
+                ->rawColumns(['profile_image', 'category_name', 'gst_no', 'pan_no', 'proof_image', 'status', 'action'])
                 ->make(true);
         }
 
@@ -105,8 +133,9 @@ class VendorController extends Controller
         }
         $btn_title  = $vendor ? 'Update' : 'Submit';
         $page_title = $vendor ? 'Update Vendor' : 'Add Vendor';
+        $categories = VendorCategory::where('status', 'Active')->orderBy('name', 'asc')->get();
 
-        return view('admin.vendor.add', compact('vendor', 'btn_title', 'page_title'));
+        return view('admin.vendor.add', compact('vendor', 'btn_title', 'page_title', 'categories'));
     }
 
     public function save(Request $request)
@@ -118,14 +147,25 @@ class VendorController extends Controller
             'name' => 'required|string',
             'email_id' => 'required|email|unique:vendors,email_id,' . $id,
             'phone_no' => 'required|min:10|max:10|unique:vendors,phone_no,' . $id,
-            'profile_image' => 'nullable|image|mimes:jpg,jpeg,png',
+            'vendor_category_id' => 'required|exists:vendor_categories,id',
+            'gst_no' => 'required|string|max:50|unique:vendors,gst_no,' . $id,
+            'pan_no' => 'required|string|max:20|unique:vendors,pan_no,' . $id,
+            'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp',
+            'proof_image' => ($id && !empty($request->input('old_proof_image'))) ? 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120' : ($id ? 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120' : 'required|image|mimes:jpg,jpeg,png,webp|max:5120'),
             'status' => 'required|in:Pending,Active,Inactive,Blocked',
             'gender' => 'required|in:Male,Female,Other',
             'vendor_type' => 'required|in:survey,product,rental_product,course',
             'raw_password' => $id ? 'nullable|min:6' : 'required|min:6'
         ];
 
-        $validator = Validator::make($input, $rules);
+        $messages = [
+            'vendor_category_id.required' => 'Please select a vendor category.',
+            'gst_no.required' => 'GST Number is required.',
+            'pan_no.required' => 'PAN Number is required.',
+            'proof_image.required' => 'KYC Proof document/image is required.',
+        ];
+
+        $validator = Validator::make($input, $rules, $messages);
 
         if($validator->fails()){
             return response()->json([
@@ -144,6 +184,9 @@ class VendorController extends Controller
         $vendor->name = trim($input['name']);
         $vendor->email_id = trim($input['email_id']);
         $vendor->phone_no = trim($input['phone_no']);
+        $vendor->vendor_category_id = $input['vendor_category_id'];
+        $vendor->gst_no = strtoupper(trim($input['gst_no']));
+        $vendor->pan_no = strtoupper(trim($input['pan_no']));
         $vendor->status = $input['status'];
         $vendor->gender = $input['gender'];
         $vendor->vendor_type = $input['vendor_type'];
@@ -161,6 +204,16 @@ class VendorController extends Controller
                 $request->input('old_profile_image')
             );
             $vendor->profile_image = $uploaded['image'] ?? '';
+        }
+
+        if ($request->hasFile('proof_image')) {
+            $fileName = $request->file('proof_image');
+            $uploaded = uploadImage(
+                $fileName,
+                'vendor/kyc',
+                $request->input('old_proof_image')
+            );
+            $vendor->proof_image = $uploaded['image'] ?? '';
         }
 
         $vendor->save();

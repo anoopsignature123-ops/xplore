@@ -60,6 +60,17 @@
                               <input type="text" class="form-control" id="filter_phone" placeholder="Search by Phone">
                            </div>
 
+                           <!-- Category -->
+                           <div class="col-12 col-md-6 col-lg-3">
+                              <label class="form-label text-dark fw-semibold mb-1">Category</label>
+                              <select class="form-select select2" id="filter_vendor_category_id">
+                                 <option value="">All Categories</option>
+                                 @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                 @endforeach
+                              </select>
+                           </div>
+
                            <!-- Vendor Type -->
                            <div class="col-12 col-md-6 col-lg-3">
                               <label class="form-label text-dark fw-semibold mb-1">Vendor Type</label>
@@ -158,6 +169,7 @@
                url: "{{ route('admin.vendor.getRecords') }}",
                data: function (d) {
                    d.status = $('#filter_status').val();
+                   d.vendor_category_id = $('#filter_vendor_category_id').val();
                    d.name = $('#filter_name').val();
                    d.phone_no = $('#filter_phone').val();
                    d.vendor_type = $('#filter_vendor_type').val();
@@ -177,10 +189,14 @@
         }
     },
     { data: 'vendor_type', name: 'vendor_type', title: 'Vendor Type' },
+    { data: 'category_name', name: 'category.name', title: 'Category' },
     { data: 'profile_image', name: 'profile_image', title: 'Profile Image' },
     { data: 'name', name: 'name', title: 'Name' },
     { data: 'phone_no', name: 'phone_no', title: 'Phone No.' },
     { data: 'email_id', name: 'email_id', title: 'Email ID' },
+    { data: 'gst_no', name: 'gst_no', title: 'GST No.' },
+    { data: 'pan_no', name: 'pan_no', title: 'PAN No.' },
+    { data: 'proof_image', name: 'proof_image', title: 'KYC Proof' },
     { data: 'raw_password', name: 'raw_password', title: 'Password' },
     { data: 'gender', name: 'gender', title: 'Gender' },
     { data: 'status', name: 'status', title: 'Status' },
@@ -195,6 +211,7 @@
    
        $('#btnResetFilter').on('click', function() {
            $('#filter_status').val('');
+           $('#filter_vendor_category_id').val('');
            $('#filter_name').val('');
            $('#filter_phone').val('');
            $('#filter_vendor_type').val('');

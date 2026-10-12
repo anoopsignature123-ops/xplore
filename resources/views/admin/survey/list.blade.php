@@ -120,7 +120,9 @@
                }, 
                { data: 'image', name: 'image', title: 'Image' },
                { data: 'name', name: 'name', title: 'Name' }, 
-               { data: 'amount', name: 'amount', title: 'Amount' },
+               { data: 'amount', name: 'amount', title: 'Total Amount' },
+               { data: 'discount_amount', name: 'discount_amount', title: 'Discount' },
+               { data: 'final_amount', name: 'final_amount', title: 'Final Amount' },
                { data: 'status', name: 'status', title: 'Status' },
                { data: 'action', name: 'action', title: 'Action' }
            ]

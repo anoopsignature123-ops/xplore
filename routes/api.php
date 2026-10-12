@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\Customer\PaymentController;
 use App\Http\Controllers\Api\V1\Customer\OrderController;
 use App\Http\Controllers\Api\V1\Customer\EquipmentController;
 use App\Http\Controllers\Api\V1\Customer\BuildController;
+use App\Http\Controllers\Api\V1\Customer\ContactUsController;
 
   
 use Illuminate\Support\Facades\Broadcast;
@@ -110,10 +111,21 @@ Route::prefix('v1')->group(function () {
         Route::post('build-builders', [BuildController::class, 'builders']);
         Route::post('build-detail', [BuildController::class, 'detail']);
         Route::post('build-submit-inquiry', [BuildController::class, 'submitInquiry']);
-        Route::post('build-add-review', [BuildController::class, 'addReview']);
-    });  
+        // Contact Us APIs
+        Route::match(['get', 'post'], 'contact-types', [ContactUsController::class, 'getContactTypes']);
+        Route::post('submit-contact-us', [ContactUsController::class, 'submitContactUs']);
+        Route::match(['get', 'post'], 'my-contact-queries', [ContactUsController::class, 'myContactQueries']);
 
+        // Vendor & Vendor Categories APIs
+        Route::match(['get', 'post'], 'vendor-category-list', [MasterController::class, 'vendorCategoryList']);
+        Route::match(['get', 'post'], 'vendor-categories', [MasterController::class, 'vendorCategoryList']);
+        Route::match(['get', 'post'], 'vendor-list', [MasterController::class, 'vendorList']);
+    });
+
+    // Public Contact Types route
+    Route::match(['get', 'post'], '/contact-types', [ContactUsController::class, 'getContactTypes']);
+
+    // Public Vendor Categories & Vendor List routes
+    Route::match(['get', 'post'], '/vendor-categories', [MasterController::class, 'vendorCategoryList']);
+    Route::match(['get', 'post'], '/vendor-list', [MasterController::class, 'vendorList']);
 });
-
-
- 

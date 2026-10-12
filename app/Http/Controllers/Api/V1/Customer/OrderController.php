@@ -58,13 +58,19 @@ class OrderController extends Controller
             } elseif ($order->order_type == 'survey') {
                 $survey = CustomerSurvey::where('id', $order->rel_id)->first();
                 if ($survey) {
+                    if (strtolower($survey->payment_status) !== 'success' && strtolower($survey->payment_status) !== 'paid') {
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Invoice will be generated only after 100% final payment is completed.'
+                        ], 403);
+                    }
                     $items[] = [
                         'name' => $survey->survey_name,
                         'quantity' => 1,
-                        'unit_price' => $survey->amount, 
-                        'total' => $survey->amount,
+                        'unit_price' => $survey->final_amount ?? $survey->amount, 
+                        'total' => $survey->final_amount ?? $survey->amount,
                     ];
-                    $subtotal += $survey->amount;
+                    $subtotal += $survey->final_amount ?? $survey->amount;
                 }
             } elseif ($order->order_type == 'product' || $order->order_type == 'rental_product') {
                 $productOrder = ProductOrder::where('id', $order->rel_id)->first();

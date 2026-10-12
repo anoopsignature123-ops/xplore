@@ -75,6 +75,17 @@
                    </div>
 
                    <div class="col-md-6">
+                       <label class="form-label">Aadhar Number <span class="text-danger">*</span></label>
+                       <input
+                           type="text"
+                           class="form-control numberInput" minlength="12" maxlength="12"
+                           name="aadhar_number"
+                           id="aadhar_number"
+                           value="{{ $customer->aadhar_number ?? '' }}"
+                           placeholder="Enter 12-digit Aadhar Number" required>
+                   </div>
+
+                   <div class="col-md-6">
                        <label class="form-label">Gender <span class="text-danger">*</span></label>
                        <select class="form-select select2" name="gender" id="gender" required>
                            <option value="">Select Gender</option>

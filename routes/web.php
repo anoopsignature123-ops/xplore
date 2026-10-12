@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\CourseTopicController;
 use App\Http\Controllers\Admin\CourseContentController;   
 use App\Http\Controllers\Admin\FaqController;   
 use App\Http\Controllers\Admin\HelpQueryController;   
+use App\Http\Controllers\Admin\ContactTypeController;
+use App\Http\Controllers\Admin\ContactUsController;
 use App\Http\Controllers\Admin\NotificationController;     
 use App\Http\Controllers\SystemClean;   
 use App\Http\Controllers\Admin\CustomerController;    
@@ -28,6 +30,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CartController;      
 use App\Http\Controllers\Admin\ProductOrderController;      
 use App\Http\Controllers\Admin\VendorController;
+use App\Http\Controllers\Admin\VendorCategoryController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CmsController;
@@ -372,6 +375,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/delete', [VendorController::class, 'delete'])->middleware('permission:vendor-delete')->name('delete');
         });
 
+        /*  
+        |--------------------------------------------------------------------------
+        | Vendor Category Module
+        |--------------------------------------------------------------------------
+        */ 
+        Route::prefix('vendor-category')->name('vendor-category.')->group(function () {
+            Route::get('/list', [VendorCategoryController::class, 'index'])->name('list');
+            Route::post('/getRecords', [VendorCategoryController::class, 'getRecords'])->name('getRecords');
+            Route::get('/add/{id?}', [VendorCategoryController::class, 'add'])->name('add');
+            Route::post('/save', [VendorCategoryController::class, 'save'])->name('save');
+            Route::post('/change-status', [VendorCategoryController::class, 'changeStatus'])->name('changeStatus');
+            Route::post('/delete', [VendorCategoryController::class, 'delete'])->name('delete');
+        });
+
  
 
         /*
@@ -512,6 +529,27 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/list', [BuilderInquiryController::class, 'index'])->name('list');
             Route::get('/getRecords', [BuilderInquiryController::class, 'getRecords'])->name('getRecords');
             Route::post('/update-status', [BuilderInquiryController::class, 'updateStatus'])->name('updateStatus');
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Contact Types Master & Contact Us Modules
+        |--------------------------------------------------------------------------
+        */
+        Route::prefix('contact-type')->name('contact-type.')->group(function () {
+            Route::get('/list', [ContactTypeController::class, 'index'])->name('list');
+            Route::post('/getRecords', [ContactTypeController::class, 'getRecords'])->name('getRecords');
+            Route::get('/add/{id?}', [ContactTypeController::class, 'add'])->name('add');
+            Route::post('/save', [ContactTypeController::class, 'save'])->name('save');
+            Route::post('/change-status', [ContactTypeController::class, 'changeStatus'])->name('changeStatus');
+            Route::post('/delete', [ContactTypeController::class, 'delete'])->name('delete');
+        });
+
+        Route::prefix('contact-us')->name('contact-us.')->group(function () {
+            Route::get('/list', [ContactUsController::class, 'index'])->name('list');
+            Route::post('/getRecords', [ContactUsController::class, 'getRecords'])->name('getRecords');
+            Route::post('/update-reply-status', [ContactUsController::class, 'updateReplyStatus'])->name('updateReplyStatus');
+            Route::post('/delete', [ContactUsController::class, 'delete'])->name('delete');
         });
 
     });

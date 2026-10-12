@@ -116,6 +116,7 @@ class CustomerController extends Controller
             'name' => 'required|string',
             'email_id' => 'required|email|unique:customers,email_id,' . $id,
             'phone_no' => 'required|min:10|max:10|unique:customers,phone_no,' . $id,
+            'aadhar_number' => 'required|digits:12|unique:customers,aadhar_number,' . $id,
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png',
             'status' => 'required|in:Pending,Active,Inactive,Blocked',
             'gender' => 'required|in:Male,Female,Other'
@@ -140,6 +141,7 @@ class CustomerController extends Controller
         $customer->name = trim($input['name']);
         $customer->email_id = trim($input['email_id']);
         $customer->phone_no = trim($input['phone_no']);
+        $customer->aadhar_number = trim($input['aadhar_number']);
         $customer->status = $input['status'];
         $customer->gender = $input['gender'];
         if(!$id) {

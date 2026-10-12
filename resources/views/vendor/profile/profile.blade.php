@@ -36,14 +36,42 @@
                         <input type="text" class="form-control" name="phone_no" value="{{ old('phone_no', $vendor->phone_no) }}" required>
                      </div>
                      <div class="mb-3">
+                        <label class="form-label">GST Number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control text-uppercase" name="gst_no" value="{{ old('gst_no', $vendor->gst_no) }}" placeholder="Enter GST Number" required>
+                     </div>
+                     <div class="mb-3">
+                        <label class="form-label">PAN Number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control text-uppercase" name="pan_no" value="{{ old('pan_no', $vendor->pan_no) }}" placeholder="Enter PAN Number" required>
+                     </div>
+                     <div class="mb-3">
                         <label class="form-label">Email (Readonly)</label>
                         <input type="email" class="form-control" value="{{ $vendor->email_id }}" readonly>
+                     </div>
+                     <div class="mb-3">
+                        <label class="form-label">Vendor Category</label>
+                        <div class="input-group">
+                           <input type="text" class="form-control" value="{{ $vendor->category ? $vendor->category->name : 'Not Assigned' }}" readonly>
+                           @if($vendor->category)
+                              <span class="input-group-text bg-primary text-white"><i class="fas fa-tag me-1"></i> Assigned</span>
+                           @endif
+                        </div>
                      </div>
                      <div class="mb-3">
                         <label class="form-label">Profile Image</label>
                         <input type="file" class="form-control" name="profile_image" accept="image/*" onchange="previewImage(this, 'profile_imagePreview')">
                         <input type="hidden" name="old_profile_image" value="{{ $vendor->profile_image }}">
                         <img id="profile_imagePreview" src="{{ !empty($vendor->profile_image) ? asset($vendor->profile_image) : '' }}" style="max-height:60px; margin-top:10px; {{ empty($vendor->profile_image) ? 'display:none;' : '' }}">
+                     </div>
+                     <div class="mb-3">
+                        <label class="form-label">KYC Proof Image / Document</label>
+                        <input type="file" class="form-control" name="proof_image" accept=".jpg,.jpeg,.png,.webp" onchange="previewImage(this, 'proof_imagePreview')">
+                        <input type="hidden" name="old_proof_image" value="{{ $vendor->proof_image }}">
+                        @if(!empty($vendor->proof_image))
+                           <div class="mt-2">
+                              <a href="{{ asset($vendor->proof_image) }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-file-image me-1"></i> View KYC Document</a>
+                           </div>
+                        @endif
+                        <img id="proof_imagePreview" src="{{ !empty($vendor->proof_image) ? asset($vendor->proof_image) : '' }}" style="max-height:60px; margin-top:10px; {{ empty($vendor->proof_image) ? 'display:none;' : '' }}">
                      </div>
                      <button type="submit" class="btn btn-primary">Save Changes</button>
                   </form>

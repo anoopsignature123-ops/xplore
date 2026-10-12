@@ -32,32 +32,31 @@ $segment_three = request()->segment(3);
          </li>
 
            <!-- Masters -->
-  @canany(['slider-list', 'slider-add', 'survey-list', 'survey-add', 'faq-list', 'faq-add', 'notification-list', 'notification-add', 'cms-list', 'cms-add'])
-  <li class="sidebar-list {{ in_array($segment_two, ['slider', 'survey', 'faq', 'notification', 'cms']) ? 'active' : '' }}">
-     <a class="sidebar-link" href="javascript:void(0)">
-        <i class="fas fa-layer-group me-2"></i>
-        <h6>Masters</h6>
-        <i class="fas fa-chevron-right ms-auto"></i>
-     </a>
-     <ul class="sidebar-submenu" style="{{ in_array($segment_two, ['slider', 'survey', 'faq', 'notification', 'cms']) ? 'display:block;' : '' }}">
-        @can('slider-list')
-        <li><a class="{{ $segment_two == 'slider' ? 'active' : '' }}" href="{{ route('admin.slider.list') }}">Sliders</a></li>
-        @endcan
-        @can('survey-list')
-        <li><a class="{{ $segment_two == 'survey' ? 'active' : '' }}" href="{{ route('admin.survey.list') }}">Surveys</a></li>
-        @endcan
-        @can('faq-list')
-        <li><a class="{{ $segment_two == 'faq' ? 'active' : '' }}" href="{{ route('admin.faq.list') }}">FAQs</a></li>
-        @endcan
-        @can('notification-list')
-        <li><a class="{{ $segment_two == 'notification' ? 'active' : '' }}" href="{{ route('admin.notification.list') }}">Notifications</a></li>
-        @endcan
-        @can('cms-list')
-        <li><a class="{{ $segment_two == 'cms' ? 'active' : '' }}" href="{{ route('admin.cms.list') }}">CMS Pages</a></li>
-        @endcan
-     </ul>
-  </li>
-  @endcanany
+   <li class="sidebar-list {{ in_array($segment_two, ['slider', 'survey', 'faq', 'notification', 'cms', 'contact-type']) ? 'active' : '' }}">
+      <a class="sidebar-link" href="javascript:void(0)">
+         <i class="fas fa-layer-group me-2"></i>
+         <h6>Masters</h6>
+         <i class="fas fa-chevron-right ms-auto"></i>
+      </a>
+      <ul class="sidebar-submenu" style="{{ in_array($segment_two, ['slider', 'survey', 'faq', 'notification', 'cms', 'contact-type']) ? 'display:block;' : '' }}">
+         @can('slider-list')
+         <li><a class="{{ $segment_two == 'slider' ? 'active' : '' }}" href="{{ route('admin.slider.list') }}">Sliders</a></li>
+         @endcan
+         @can('survey-list')
+         <li><a class="{{ $segment_two == 'survey' ? 'active' : '' }}" href="{{ route('admin.survey.list') }}">Surveys</a></li>
+         @endcan
+         @can('faq-list')
+         <li><a class="{{ $segment_two == 'faq' ? 'active' : '' }}" href="{{ route('admin.faq.list') }}">FAQs</a></li>
+         @endcan
+         <li><a class="{{ $segment_two == 'contact-type' ? 'active' : '' }}" href="{{ route('admin.contact-type.list') }}">Contact Types</a></li>
+         @can('notification-list')
+         <li><a class="{{ $segment_two == 'notification' ? 'active' : '' }}" href="{{ route('admin.notification.list') }}">Notifications</a></li>
+         @endcan
+         @can('cms-list')
+         <li><a class="{{ $segment_two == 'cms' ? 'active' : '' }}" href="{{ route('admin.cms.list') }}">CMS Pages</a></li>
+         @endcan
+      </ul>
+   </li>
 
 
       <!-- Products Catalog -->
@@ -143,19 +142,20 @@ $segment_three = request()->segment(3);
 
    <!-- Vendors -->
  @canany(['vendor-list', 'vendor-add'])
- <li class="sidebar-list {{ in_array($segment_two, ['vendor']) ? 'active' : '' }}">
+ <li class="sidebar-list {{ in_array($segment_two, ['vendor', 'vendor-category']) ? 'active' : '' }}">
     <a class="sidebar-link" href="javascript:void(0)">
        <i class="fas fa-store me-2"></i>  
        <h6>Vendors</h6>
        <i class="fas fa-chevron-right ms-auto"></i>
     </a>
-    <ul class="sidebar-submenu" style="{{ in_array($segment_two, ['vendor']) ? 'display:block;' : '' }}">
+    <ul class="sidebar-submenu" style="{{ in_array($segment_two, ['vendor', 'vendor-category']) ? 'display:block;' : '' }}">
        @can('vendor-add')
        <li><a class="{{ $segment_two == 'vendor' && $segment_three == 'add' ? 'active' : '' }}" href="{{ route('admin.vendor.add') }}">Add Vendor</a></li>
        @endcan
        @can('vendor-list')
        <li><a class="{{ $segment_two == 'vendor' && $segment_three == 'list' ? 'active' : '' }}" href="{{ route('admin.vendor.list') }}">Vendor List</a></li>
        @endcan
+       <li><a class="{{ $segment_two == 'vendor-category' ? 'active' : '' }}" href="{{ route('admin.vendor-category.list') }}">Vendor Categories</a></li>
     </ul>
  </li>
  @endcanany
@@ -196,6 +196,14 @@ $segment_three = request()->segment(3);
             </a>
          </li>
          @endcan
+
+         <!-- Contact Us Queries -->
+         <li class="sidebar-list {{ in_array($segment_two, ['contact-us']) ? 'active' : '' }}">
+            <a class="sidebar-link" href="{{ route('admin.contact-us.list') }}">
+               <i class="fas fa-envelope-open-text me-2"></i>
+               <h6>Contact Us Queries</h6>
+            </a>
+         </li>
          
 
          <!-- All Orders -->

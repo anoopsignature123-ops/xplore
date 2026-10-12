@@ -26,6 +26,7 @@ Route::prefix('vendor')->name('vendor.')->group(function () {
         Route::prefix('my-survey')->name('my-survey.')->group(function () {
             Route::get('/list', [MySurveyController::class, 'index'])->name('list');
             Route::get('/getRecords', [MySurveyController::class, 'getRecords'])->name('getRecords');
+            Route::post('/accept', [MySurveyController::class, 'acceptSurvey'])->name('accept');
             // Chat
             Route::get('/chat/{id}', [ChatController::class, 'chatPage'])->name('chat');
             Route::post('/chat/{id}/history', [ChatController::class, 'getChatHistory'])->name('chat.history');

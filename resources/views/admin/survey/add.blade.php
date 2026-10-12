@@ -42,19 +42,26 @@
                         <input type="text" class="form-control" name="name" id="name" required value="{{ $survey->name ?? '' }}" placeholder="Enter Name">
                      </div> 
 
-                      <div class="col-md-6">
-                        <label class="form-label">Amount</label>
-                        <input type="text" class="form-control numberInput" required name="amount" id="amount" value="{{ isset($survey->amount) ? (int) $survey->amount : '' }}" placeholder="Enter Amount">
+                     <div class="col-md-6">
+                        <label class="form-label">Total Amount (₹)</label>
+                        <input type="number" step="0.01" min="0" class="form-control" required name="amount" id="amount" value="{{ isset($survey->amount) ? $survey->amount : '' }}" placeholder="Enter Total Amount">
                      </div> 
 
-                        <div class="col-md-12">
+                     <div class="col-md-6">
+                        <label class="form-label">Discount Amount (₹)</label>
+                        <input type="number" step="0.01" min="0" class="form-control" name="discount_amount" id="discount_amount" value="{{ isset($survey->discount_amount) ? $survey->discount_amount : '0' }}" placeholder="Enter Discount Amount">
+                     </div>
+
+                     <div class="col-md-6">
+                        <label class="form-label">Final Amount (₹)</label>
+                        <input type="number" step="0.01" min="0" class="form-control" name="final_amount" id="final_amount" readonly style="background-color: #e2e8f0 !important; color: #0f172a !important; font-weight: 700;" value="{{ isset($survey->final_amount) ? $survey->final_amount : (isset($survey->amount) ? $survey->amount : '') }}" placeholder="Final Amount">
+                     </div>
+
+                     <div class="col-md-12">
                         <label class="form-label">Short Detail</label>
-                        <textarea name="short_detail" id="short_detail" class="form-control" cols="2" rows="2" required  placeholder="Enter Short Detail">{{ $survey->short_detail ?? ''}}</textarea>
+                        <textarea name="short_detail" id="short_detail" class="form-control" cols="2" rows="2" required placeholder="Enter Short Detail">{{ $survey->short_detail ?? ''}}</textarea>
                      </div> 
                      
-
-
-                    
                      <div class="col-md-4"> 
                         <label class="form-label" for="image">Image</label>
                         <input type="file" class="form-control" id="image" name="image" {{ empty($survey->image) ? 'required' : '' }} accept=".jpg,.jpeg,.png"
@@ -72,7 +79,7 @@
                         </div>
                      </div>
 
-                      <div class="col-md-4">  
+                     <div class="col-md-4">  
                         <label class="form-label">Status</label>
                         <select class="form-select select2" required name="status" id="status">
                         <option value="Active" {{ (!empty($survey) && $survey->status == 'Active') ? 'selected' : '' }}>Active</option>
@@ -99,6 +106,17 @@
 @push('scripts')
 <script>
    $(document).ready(function () {
+       function calculateFinalAmount() {
+           let amount = parseFloat($('#amount').val()) || 0;
+           let discount = parseFloat($('#discount_amount').val()) || 0;
+           let finalAmount = Math.max(0, amount - discount);
+           $('#final_amount').val(finalAmount.toFixed(2));
+       }
+
+       $('#amount, #discount_amount').on('input change', function() {
+           calculateFinalAmount();
+       });
+
        $('#saveForm').on('submit', function(e){
            e.preventDefault();
            let form = $('#saveForm')[0];

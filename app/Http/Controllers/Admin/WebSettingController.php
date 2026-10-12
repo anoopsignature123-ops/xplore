@@ -30,6 +30,9 @@ class WebSettingController extends Controller
             'youtube_link'            => 'required|url',
             'copyright'               => 'required|string',
             'address'                 => 'required|string',
+            'survey_booking_percentage'    => 'nullable|numeric|min:0|max:100',
+            'survey_completion_percentage' => 'nullable|numeric|min:0|max:100',
+            'survey_open_hours'            => 'nullable|numeric|min:0.1|max:72',
             'logo'                    => 'nullable|image|mimes:jpg,jpeg,png',
             'favicon'                 => 'nullable|image|mimes:jpg,jpeg,png', 
         ];
@@ -47,7 +50,7 @@ class WebSettingController extends Controller
         $fieldsToUpdate = [
             'company_name', 'email_id', 'phone_no', 'whatsapp_no', 
             'facebook_link', 'youtube_link', 'instagram_link', 'twitter_link',
-            'copyright', 'address', 
+            'copyright', 'address', 'survey_booking_percentage', 'survey_completion_percentage', 'survey_open_hours'
         ];
         
         foreach ($fieldsToUpdate as $field) {

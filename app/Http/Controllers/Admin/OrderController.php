@@ -67,6 +67,12 @@ class OrderController extends Controller
                 ->addColumn('action', function ($row) {
                     $html = '';
                     if (strtolower($row->status) === 'success') {
+                        if ($row->order_type == 'survey') {
+                            $survey = CustomerSurvey::where('id', $row->rel_id)->first();
+                            if ($survey && (strtolower($survey->payment_status) !== 'success' && strtolower($survey->payment_status) !== 'paid')) {
+                                return '<span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> Invoice pending final payment</span>';
+                            }
+                        }
                         $enc_id = base64_encode('XPL-' . ($row->id * 8888));
                         $html .= '<a href="' . route('admin.order.invoice', $enc_id) . '" target="_blank" class="btn btn-sm btn-info text-white"><i class="fas fa-file-pdf"></i> Invoice</a>';
                     }
@@ -152,13 +158,16 @@ class OrderController extends Controller
         } elseif ($order->order_type == 'survey') {
             $survey = CustomerSurvey::where('id', $order->rel_id)->first();
             if ($survey) {
+                if (strtolower($survey->payment_status) !== 'success' && strtolower($survey->payment_status) !== 'paid') {
+                    return back()->with('error', 'Invoice will be generated only after 100% final payment is completed.');
+                }
                 $items[] = [
                     'name' => $survey->survey_name,
                     'quantity' => 1,
-                    'unit_price' => $survey->amount, 
-                    'total' => $survey->amount,
+                    'unit_price' => $survey->final_amount ?? $survey->amount, 
+                    'total' => $survey->final_amount ?? $survey->amount,
                 ];
-                $subtotal += $survey->amount;
+                $subtotal += $survey->final_amount ?? $survey->amount;
             }
         } elseif ($order->order_type == 'product' || $order->order_type == 'rental_product') {
             $productOrder = ProductOrder::where('id', $order->rel_id)->first();

@@ -27,7 +27,10 @@ class WebSettings extends Model
         'address',
         'qr_image',
         'sign_image',
-        'stamp_image'
+        'stamp_image',
+        'survey_booking_percentage',
+        'survey_completion_percentage',
+        'survey_open_hours'
     ];
 
   

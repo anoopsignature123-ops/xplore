@@ -104,8 +104,18 @@ class CustomerSurveyController extends Controller
                 })
 
                 ->editColumn('amount', function ($row) {
-                    $amount = $row->amount ? number_format($row->amount, 2) : '0.00';
-                    return "<strong class='text-success'><i class='fa-solid fa-indian-rupee-sign'></i> {$amount}</strong>";
+                    $amount = number_format($row->amount ?? 0, 2);
+                    $discount = number_format($row->discount_amount ?? 0, 2);
+                    $final = number_format($row->final_amount ?? ($row->amount - ($row->discount_amount ?? 0)), 2);
+                    $pct = number_format($row->booking_percentage ?? 40, 0);
+                    $advance = number_format($row->advance_amount ?? 0, 2);
+                    $remaining = number_format($row->remaining_amount ?? 0, 2);
+
+                    return "<div><small class='text-muted'>Total: ₹{$amount}</small></div>
+                            <div><small class='text-danger'>Disc: ₹{$discount}</small></div>
+                            <div><strong class='text-primary'>Net Final: ₹{$final}</strong></div>
+                            <div><small class='text-info'>Adv ({$pct}%): ₹{$advance}</small></div>
+                            <div><small class='text-warning'>Due: ₹{$remaining}</small></div>";
                 })
 
                 ->addColumn('location_details', function ($row) {
@@ -154,10 +164,24 @@ class CustomerSurveyController extends Controller
                     }
 
 
+                    $openHours = (float) (\App\Models\WebSettings::first()->survey_open_hours ?? 3.00);
+                    $expiresAt = \Carbon\Carbon::parse($row->created_at)->addHours($openHours);
+                    $minsLeft = \Carbon\Carbon::now()->diffInMinutes($expiresAt, false);
+
+                    $openStatusBadge = '';
+                    if ($minsLeft > 0) {
+                        $h = floor($minsLeft / 60);
+                        $m = $minsLeft % 60;
+                        $timeStr = $h > 0 ? "{$h}h {$m}m left" : "{$m}m left";
+                        $openStatusBadge = '<div class="mb-1"><span class="badge bg-info text-dark"><i class="fas fa-bolt"></i> Open for Vendors (' . $timeStr . ')</span></div>';
+                    } else {
+                        $openStatusBadge = '<div class="mb-1"><span class="badge bg-warning text-dark"><i class="fas fa-exclamation-triangle"></i> Open Window Expired</span></div>';
+                    }
+
                     $date = $row->survey_date ? \Carbon\Carbon::parse($row->survey_date)->format('d M Y') : 'N/A';
                     $time = $row->survey_time ? \Carbon\Carbon::parse($row->survey_time)->format('h:i A') : 'N/A';
                     
-                    return '<button type="button" class="btn btn-primary btn-sm btn-assign" 
+                    return $openStatusBadge . '<button type="button" class="btn btn-primary btn-sm btn-assign" 
                                 data-id="'.$row->id.'"
                                 data-cname="'.($row->customer->name ?? 'N/A').'"
                                 data-cphone="'.($row->customer->phone_no ?? 'N/A').'"
@@ -169,7 +193,7 @@ class CustomerSurveyController extends Controller
                                 data-lat="'.($row->latitude ?? 'N/A').'"
                                 data-lng="'.($row->longitude ?? 'N/A').'"
                             >
-                                <i class="fa-solid fa-user-check"></i> Assign
+                                <i class="fa-solid fa-user-check"></i> Assign Vendor
                             </button>';
                 })
 

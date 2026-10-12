@@ -8,7 +8,7 @@
          <div class="row align-items-center">
             <div class="col-sm-12 col-12">
                <h2 class="fw-bold mb-1 text-dark" style="font-family: 'Outfit', sans-serif;">Vendor Dashboard</h2>
-               <p class="mb-0 text-muted">Welcome, {{ $vendor->name }}</p>
+               <p class="mb-0 text-muted">Welcome, {{ $vendor->name }} @if(!empty($vendor->category)) <span class="badge bg-primary ms-1"><i class="fas fa-tag me-1"></i>{{ $vendor->category->name }}</span> @endif</p>
             </div>
             
          </div>

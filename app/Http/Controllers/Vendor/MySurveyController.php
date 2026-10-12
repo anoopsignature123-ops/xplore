@@ -35,9 +35,19 @@ class MySurveyController extends Controller
     {
         if ($request->ajax()) {
 
-            $vendor_id = Auth::guard('vendor')->user()->id;
+            $openHours = (float) (\App\Models\WebSettings::first()->survey_open_hours ?? 3.00);
+            $cutoffTime = \Carbon\Carbon::now()->subHours($openHours);
 
-            $query = CustomerSurvey::with('customer')->where('vendor_id', $vendor_id)->orderBy('assigned_at', 'desc');
+            if ($request->type == 'available') {
+                $query = CustomerSurvey::with('customer')
+                    ->whereNull('vendor_id')
+                    ->where('status', 'Pending')
+                    ->where('created_at', '>=', $cutoffTime)
+                    ->orderBy('created_at', 'desc');
+            } else {
+                $vendor_id = Auth::guard('vendor')->user()->id;
+                $query = CustomerSurvey::with('customer')->where('vendor_id', $vendor_id)->orderBy('assigned_at', 'desc');
+            }
 
             // Filter by Date Range
             if ($request->filled('from_date') && $request->filled('to_date')) {
@@ -61,14 +71,25 @@ class MySurveyController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn() 
 
-                ->addColumn('assigned_date', function ($row) {
-                    $assigned = $row->assigned_at ? \Carbon\Carbon::parse($row->assigned_at)->format('d M Y | h:i A') : 'N/A';
-                    $html = "<div><small class='text-muted'>Assigned At</small><br><strong>{$assigned}</strong></div>";
-                    if (!empty($row->completed_at)) {
-                        $completed = \Carbon\Carbon::parse($row->completed_at)->format('d M Y | h:i A');
-                        $html .= "<div class='mt-2'><small class='text-muted'>Completed At</small><br><strong class='text-success'>{$completed}</strong></div>";
+                ->addColumn('assigned_date', function ($row) use ($openHours) {
+                    if ($row->vendor_id) {
+                        $assigned = $row->assigned_at ? \Carbon\Carbon::parse($row->assigned_at)->format('d M Y | h:i A') : 'N/A';
+                        $html = "<div><small class='text-muted'>Assigned At</small><br><strong>{$assigned}</strong></div>";
+                        if (!empty($row->completed_at)) {
+                            $completed = \Carbon\Carbon::parse($row->completed_at)->format('d M Y | h:i A');
+                            $html .= "<div class='mt-2'><small class='text-muted'>Completed At</small><br><strong class='text-success'>{$completed}</strong></div>";
+                        }
+                        return $html;
+                    } else {
+                        $expiresAt = \Carbon\Carbon::parse($row->created_at)->addHours($openHours);
+                        $minsLeft = \Carbon\Carbon::now()->diffInMinutes($expiresAt, false);
+                        if ($minsLeft > 0) {
+                            $h = floor($minsLeft / 60);
+                            $m = $minsLeft % 60;
+                            return '<span class="badge bg-warning text-dark"><i class="fas fa-clock"></i> ' . ($h > 0 ? "{$h}h {$m}m left" : "{$m}m left") . '</span>';
+                        }
+                        return '<span class="badge bg-secondary">Expired</span>';
                     }
-                    return $html;
                 })
 
                 ->addColumn('customer_details', function ($row) {
@@ -97,8 +118,11 @@ class MySurveyController extends Controller
                 })
 
                 ->editColumn('amount', function ($row) {
-                    $amount = $row->amount ? number_format($row->amount, 2) : '0.00';
-                    return "<strong class='text-success'><i class='fa-solid fa-indian-rupee-sign'></i> {$amount}</strong>";
+                    $amount = number_format($row->amount ?? 0, 2);
+                    $final = number_format($row->final_amount ?? $row->amount ?? 0, 2);
+                    $advance = number_format($row->advance_amount ?? 0, 2);
+                    return "<div><strong class='text-success'><i class='fa-solid fa-indian-rupee-sign'></i> {$final}</strong></div>
+                            <div><small class='text-info'>Adv: ₹{$advance}</small></div>";
                 })
 
                 ->addColumn('location_details', function ($row) {
@@ -110,6 +134,9 @@ class MySurveyController extends Controller
                 })
 
                 ->editColumn('status', function ($row) {
+                    if (empty($row->vendor_id)) {
+                        return '<span class="badge bg-info text-dark rounded-pill px-3 py-2">Open for Acceptance</span>';
+                    }
                     $status = $row->status ?? 'Pending';
                     $color = match ($status) {
                         'Active', 'Completed', 'Approved' => 'success',
@@ -122,8 +149,10 @@ class MySurveyController extends Controller
                 })
 
                 ->addColumn('action', function ($row) {
-                        return '<a href="'.route('vendor.my-survey.chat', $row->id).'" class="btn btn-sm btn-info text-white rounded-pill px-3"><i class="fa-regular fa-comments"></i> Chat</a>';
-                    return '';
+                    if (empty($row->vendor_id)) {
+                        return '<button type="button" onclick="acceptSurvey(' . $row->id . ')" class="btn btn-sm btn-success rounded-pill px-3 me-1"><i class="fa-solid fa-check-circle me-1"></i> Accept Survey</button>';
+                    }
+                    return '<a href="'.route('vendor.my-survey.chat', $row->id).'" class="btn btn-sm btn-info text-white rounded-pill px-3"><i class="fa-regular fa-comments"></i> Chat</a>';
                 })
 
                 ->rawColumns(['assigned_date', 'status', 'customer_details', 'survey_details', 'amount', 'location_details', 'action'])
@@ -131,6 +160,53 @@ class MySurveyController extends Controller
         }
 
         return response()->json(['error' => 'Invalid request'], 400);
+    }
+
+    public function acceptSurvey(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:customer_surveys,id'
+        ]);
+
+        $vendor_id = Auth::guard('vendor')->user()->id;
+        $openHours = (float) (\App\Models\WebSettings::first()->survey_open_hours ?? 3.00);
+        $cutoffTime = \Carbon\Carbon::now()->subHours($openHours);
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+        try {
+            $survey = CustomerSurvey::where('id', $request->id)
+                ->whereNull('vendor_id')
+                ->where('status', 'Pending')
+                ->where('created_at', '>=', $cutoffTime)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$survey) {
+                \Illuminate\Support\Facades\DB::rollBack();
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Sorry! This survey has already been accepted by another vendor or the open window has expired.'
+                ], 422);
+            }
+
+            $survey->vendor_id = $vendor_id;
+            $survey->assigned_at = now();
+            $survey->status = 'Ongoing';
+            $survey->save();
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Survey accepted successfully! It is now assigned to you.'
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong while accepting the survey.'
+            ], 500);
+        }
     }
 
     public function chatPage($id)

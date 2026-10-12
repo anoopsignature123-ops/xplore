@@ -29,76 +29,81 @@ class SurveyController extends Controller {
   
 
     public function save(Request $request)
-{
-    $id = $request->id;
+    {
+        $id = $request->id;
 
-    $rules = [
-        'name' => 'required|string|max:255',
-        'short_detail' => 'nullable|string',
-        'amount' => 'required|string|min:0',
-        'status' => 'required|in:Active,Inactive',
-        'image' => $id ? 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
-                       : 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
-    ];
+        $rules = [
+            'name' => 'required|string|max:255',
+            'short_detail' => 'nullable|string',
+            'amount' => 'required|numeric|min:0',
+            'discount_amount' => 'nullable|numeric|min:0',
+            'final_amount' => 'nullable|numeric|min:0',
+            'status' => 'required|in:Active,Inactive',
+            'image' => $id ? 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+                           : 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ];
 
-    $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules);
 
-    if ($validator->fails()) {
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $exists = Survey::where('name', $request->name);
+
+        if ($id) {
+            $exists->where('id', '!=', $id);
+        }
+
+        if ($exists->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Survey already exists'
+            ], 422);
+        }
+
+        $survey = $id ? Survey::find($id) : new Survey();
+
+        if ($id && !$survey) {
+            return response()->json([ 
+                'success' => false,
+                'message' => 'Record Not Found'
+            ], 404);
+        }
+
+        $amount = (float) $request->amount;
+        $discountAmount = (float) ($request->discount_amount ?? 0);
+        $finalAmount = (float) ($request->final_amount ?? max(0, $amount - $discountAmount));
+
+        $survey->name = trim($request->name);
+        $survey->short_detail = $request->short_detail;
+        $survey->amount = $amount;
+        $survey->discount_amount = $discountAmount;
+        $survey->final_amount = $finalAmount;
+        $survey->status = $request->status;
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $uploaded = uploadImage($file,'survey',$survey->image ?? '');
+            $survey->image = $uploaded['image'] ?? null;
+        }
+
+        $survey->save(); 
+
         return response()->json([
-            'errors' => $validator->errors()
-        ], 422);
-    }
-
-    $exists = Survey::where('name', $request->name);
-
-    if ($id) {
-        $exists->where('id', '!=', $id);
-    }
-
-    if ($exists->exists()) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Survey already exists'
-        ], 422);
-    }
-
-    $survey = $id ? Survey::find($id) : new Survey();
-
-    if ($id && !$survey) {
-        return response()->json([ 
-            'success' => false,
-            'message' => 'Record Not Found'
-        ], 404);
-    }
-
-    $survey->name = trim($request->name);
-    $survey->short_detail = $request->short_detail;
-    $survey->amount = $request->amount;
-    $survey->status = $request->status;
-
-  
-
-
-     if ($request->hasFile('image')) {
-        $file = $request->file('image');
-        $uploaded = uploadImage($file,'survey',$survey->image ?? '');
-        $survey->image = $uploaded['image'] ?? null;
-    }
-
-    $survey->save(); 
-
-    return response()->json([
-        'success' => true,
-        'message' => $id ? 'Survey Updated Successfully' : 'Survey Added Successfully'
-    ]);
-} 
+            'success' => true,
+            'message' => $id ? 'Survey Updated Successfully' : 'Survey Added Successfully'
+        ]);
+    } 
 
 
 
     public function getRecords(Request $request) 
     {
         if ($request->ajax()) {     
-            $query = Survey::select(['id','name','amount','image','status']);
+            $query = Survey::select(['id','name','amount','discount_amount','final_amount','image','status']);
       
 
             if ($request->filled('status')) {
@@ -117,6 +122,16 @@ class SurveyController extends Controller {
                                 </a>';
                     }
                     return 'N/A';
+                })
+                ->editColumn('amount', function ($row) {
+                    return '₹' . number_format($row->amount, 2);
+                })
+                ->editColumn('discount_amount', function ($row) {
+                    return '₹' . number_format($row->discount_amount ?? 0, 2);
+                })
+                ->editColumn('final_amount', function ($row) {
+                    $final = ($row->final_amount > 0) ? $row->final_amount : max(0, $row->amount - ($row->discount_amount ?? 0));
+                    return '<strong class="text-success">₹' . number_format($final, 2) . '</strong>';
                 })
                 
               
@@ -152,7 +167,7 @@ class SurveyController extends Controller {
                         }
                         return $btn;
                     }) 
-                ->rawColumns(['image', 'status', 'action'])
+                ->rawColumns(['image', 'final_amount', 'status', 'action'])
                 ->make(true);
         }
     }

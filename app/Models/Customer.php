@@ -25,6 +25,7 @@ class Customer extends Model
         'device_id',
         'fcm_token',
         'email_id',
+        'aadhar_number',
         'gender',
         'status',
     ];

@@ -65,7 +65,12 @@ class PaymentController extends Controller
         } elseif ($request->order_type === 'survey') {
             $record = CustomerSurvey::find($request->rel_id);
             if (!$record) return response()->json(['status' => false, 'message' => 'Survey not found'], 404);
-            $calculatedAmount = $record->amount;
+            
+            if ($record->payment_status === 'partial_paid' || $request->payment_stage === 'final') {
+                $calculatedAmount = $record->remaining_amount > 0 ? $record->remaining_amount : ($record->final_amount ?? $record->amount);
+            } else {
+                $calculatedAmount = $record->advance_amount > 0 ? $record->advance_amount : ($record->final_amount ?? $record->amount);
+            }
         } elseif ($request->order_type === 'course') {
             $record = CourseEnrollment::find($request->rel_id);
             if (!$record) return response()->json(['status' => false, 'message' => 'Course enrollment not found'], 404);
@@ -187,7 +192,18 @@ class PaymentController extends Controller
  
             // Update related entities
             if ($transaction->txn_for === 'survey') {
-                CustomerSurvey::where('id', $transaction->rel_id)->update(['payment_status' => 'success']);
+                $survey = CustomerSurvey::find($transaction->rel_id);
+                if ($survey) {
+                    if (strtolower($survey->payment_status) === 'partial_paid' || $transaction->amount >= $survey->remaining_amount) {
+                        $survey->paid_amount = $survey->final_amount ?? $survey->amount;
+                        $survey->remaining_amount = 0;
+                        $survey->payment_status = 'success';
+                    } else {
+                        $survey->paid_amount = $transaction->amount;
+                        $survey->payment_status = 'partial_paid';
+                    }
+                    $survey->save();
+                }
             } elseif ($transaction->txn_for === 'course') { 
                 CourseEnrollment::where('id', $transaction->rel_id)->update(['payment_status' => 'success']);
             } 

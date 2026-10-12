@@ -18,8 +18,9 @@ class LoginController extends Controller {
             'phone_no' => 'required|digits:10', 
             'device_id' => 'required',   
             'fcm_token' => 'nullable',   
-            'device_type' => 'required']   
-        );
+            'device_type' => 'required',
+            'aadhar_number' => 'nullable|digits:12',
+        ]);
 
         if ($validator->fails()) {
             return response()->json(['status' => false, 'message' => $validator->errors()->first(), ], 422);
@@ -34,9 +35,12 @@ class LoginController extends Controller {
                 'device_id' => $request->device_id, 
                 'fcm_token' => $request->fcm_token, 
                 'device_type' => $request->device_type,
+                'aadhar_number' => $request->aadhar_number ?? null,
                 'status' => 'Active', 
                 ]);
-        }  
+        } elseif (!empty($request->aadhar_number)) {
+            $customer->update(['aadhar_number' => $request->aadhar_number]);
+        }
         $otp = 123456;    
         // $otp = rand(100000, 999999); 
         $customer->update(['otp' => $otp, 'otp_sent_at' => Carbon::now(), ]);
@@ -150,6 +154,7 @@ public function updateProfile(Request $request)
         'id' => 'required',
         'name' => 'required|string',
         'email_id' => ['required','email',Rule::unique('customers', 'email_id')->ignore($request->id),],
+        'aadhar_number' => ['required', 'digits:12', Rule::unique('customers', 'aadhar_number')->ignore($request->id)],
         'gender' => 'required|string', 
         'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
     ]);
@@ -172,6 +177,7 @@ public function updateProfile(Request $request)
 
     $customer->name = $request->name;
     $customer->email_id = $request->email_id;
+    $customer->aadhar_number = $request->aadhar_number;
     $customer->gender = $request->gender;
 
     if ($request->hasFile('image')) {
@@ -222,6 +228,7 @@ public function updateProfile(Request $request)
             'gender' => !empty($customer->gender) ? $customer->gender : null,  
             'email_id' => !empty($customer->email_id) ? $customer->email_id : null,  
             'phone_no' => !empty($customer->phone_no) ? $customer->phone_no : null, 
+            'aadhar_number' => !empty($customer->aadhar_number) ? $customer->aadhar_number : null,
             'profile_image' => !empty($customer->profile_image) ? asset($customer->profile_image) : null, 
             'status' => !empty($customer->status) ? $customer->status : null, 
         ];

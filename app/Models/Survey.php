@@ -17,6 +17,8 @@ class Survey extends Model
         'name',
         'short_detail',
         'amount',
+        'discount_amount',
+        'final_amount',
         'image',
         'status', 
     ];

@@ -39,7 +39,7 @@
                     @if(auth('vendor')->check())
                     <h6>{{ auth('vendor')->user()->name }}</h6>
                     @endif
-                    <p class="mb-0">Vendor<i class="fa-solid fa-chevron-down"></i></p>
+                    <p class="mb-0">{{ (auth('vendor')->check() && auth('vendor')->user()->category) ? auth('vendor')->user()->category->name : 'Vendor' }}<i class="fa-solid fa-chevron-down"></i></p>
                   </div>
                 </div>
                 <div class="custom-menu overflow-hidden">

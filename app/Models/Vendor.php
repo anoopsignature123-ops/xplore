@@ -24,6 +24,11 @@ class Vendor extends Authenticatable
         'raw_password',
         'status',
         'vendor_type',
+        'gst_no',
+        'pan_no',
+        'proof_image',
+        'kyc_status',
+        'vendor_category_id',
     ];
 
     protected $hidden = [
@@ -34,6 +39,11 @@ class Vendor extends Authenticatable
     protected $casts = [
         'password' => 'hashed',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(VendorCategory::class, 'vendor_category_id');
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

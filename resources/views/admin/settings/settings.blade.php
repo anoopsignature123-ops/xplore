@@ -53,7 +53,7 @@
                      </div>
                      <div class="col-12 col-md-4">
                         <label class="form-label" for="whatsapp_no">WhatsApp No</label>
-                        <input type="text" class="form-control numberInput" id="whatsapp_no" name="whatsapp_no" name="phone_no" minlength="10" maxlength="10"
+                        <input type="text" class="form-control numberInput" id="whatsapp_no" name="whatsapp_no" minlength="10" maxlength="10"
                            value="{{ $settings->whatsapp_no ?? '' }}" placeholder="Enter WhatsApp number">
                      </div>
                      <div class="col-12 col-md-4">
@@ -85,6 +85,29 @@
                         <label class="form-label" for="copyright">Copyright</label>
                         <input type="text" class="form-control" id="copyright" name="copyright"
                            value="{{ $settings->copyright ?? '' }}" placeholder="© Your Company">
+                     </div>
+
+                     <!-- Survey Payment Percentage Settings -->
+                     <div class="col-12 mt-4">
+                        <h5 class="fw-bold text-primary border-bottom pb-2 mb-2"><i class="fa-solid fa-percent me-2"></i>Survey Partial Payment Settings</h5>
+                     </div>
+                     <div class="col-12 col-md-6">
+                        <label class="form-label" for="survey_booking_percentage">Survey Booking Advance Payment (%)</label>
+                        <input type="number" step="0.01" min="0" max="100" class="form-control" id="survey_booking_percentage" name="survey_booking_percentage"
+                           value="{{ $settings->survey_booking_percentage ?? '40' }}" placeholder="e.g. 40">
+                        <small class="text-muted">Advance percentage paid at booking time (Default: 40%)</small>
+                     </div>
+                     <div class="col-12 col-md-6">
+                        <label class="form-label" for="survey_completion_percentage">Survey Final Completion Payment (%)</label>
+                        <input type="number" step="0.01" min="0" max="100" class="form-control" id="survey_completion_percentage" name="survey_completion_percentage" readonly style="background-color: #e2e8f0 !important; color: #0f172a !important; font-weight: 700;"
+                           value="{{ $settings->survey_completion_percentage ?? '60' }}" placeholder="e.g. 60">
+                        <small class="text-muted">Remaining percentage paid after survey completion (Auto calculated: 100 - Booking %)</small>
+                     </div>
+                     <div class="col-12 col-md-12 mt-2">
+                        <label class="form-label" for="survey_open_hours">Vendor Open Acceptance Window (Hours)</label>
+                        <input type="number" step="0.5" min="0.5" max="72" class="form-control" id="survey_open_hours" name="survey_open_hours"
+                           value="{{ $settings->survey_open_hours ?? '3' }}" placeholder="e.g. 3">
+                        <small class="text-muted">Time duration (in hours) a new survey remains open for all vendors to accept. If unaccepted after this time, Admin must manually assign it. (Default: 3 hours)</small>
                      </div>
                      <div class="col-12 col-md-4">
                         <label class="form-label" for="logo">Logo</label>
@@ -138,6 +161,14 @@
 @push('scripts')
 <script>
    $(document).ready(function () {
+       $('#survey_booking_percentage').on('input change', function() {
+           let booking = parseFloat($(this).val()) || 0;
+           if (booking > 100) booking = 100;
+           if (booking < 0) booking = 0;
+           let completion = Math.max(0, 100 - booking);
+           $('#survey_completion_percentage').val(completion.toFixed(2));
+       });
+
        $('#saveForm').on('submit', function(e){
            e.preventDefault();
            syncEditors();

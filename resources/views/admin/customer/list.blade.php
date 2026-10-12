@@ -168,6 +168,7 @@
     { data: 'name', name: 'name', title: 'Name' },
     { data: 'phone_no', name: 'phone_no', title: 'Phone No.' },
     { data: 'email_id', name: 'email_id', title: 'Email ID' },
+    { data: 'aadhar_number', name: 'aadhar_number', title: 'Aadhar No.', render: function(d) { return d ? d : 'N/A'; } },
     { data: 'gender', name: 'gender', title: 'Gender' },
     { data: 'status', name: 'status', title: 'Status' },
     { data: 'created_at', name: 'created_at', title: 'Registered On' },

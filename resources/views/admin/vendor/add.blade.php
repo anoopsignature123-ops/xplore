@@ -39,6 +39,7 @@
                <form id="saveForm" class="theme-form row g-3" enctype="multipart/form-data">
                    <input type="hidden" name="id" id="id" value="{{ $vendor->id ?? '' }}">
                    <input type="hidden" id="old_profile_image" name="old_profile_image" value="{{ $vendor->profile_image ?? '' }}">
+                   <input type="hidden" id="old_proof_image" name="old_proof_image" value="{{ $vendor->proof_image ?? '' }}">
                    @csrf
 
                    <div class="col-md-6">
@@ -86,6 +87,28 @@
                    </div>
 
                    <div class="col-md-6">
+                       <label class="form-label">GST Number <span class="text-danger">*</span></label>
+                       <input
+                           type="text"
+                           class="form-control text-uppercase"
+                           name="gst_no"
+                           id="gst_no"
+                           value="{{ $vendor->gst_no ?? '' }}"
+                           placeholder="Enter GST Number" required>
+                   </div>
+
+                   <div class="col-md-6">
+                       <label class="form-label">PAN Number <span class="text-danger">*</span></label>
+                       <input
+                           type="text"
+                           class="form-control text-uppercase"
+                           name="pan_no"
+                           id="pan_no"
+                           value="{{ $vendor->pan_no ?? '' }}"
+                           placeholder="Enter PAN Number" required>
+                   </div>
+
+                   <div class="col-md-6">
                        <label class="form-label">Gender <span class="text-danger">*</span></label>
                        <select class="form-select select2" name="gender" id="gender" required>
                            <option value="">Select Gender</option>
@@ -107,6 +130,16 @@
                    </div>
 
                    <div class="col-md-6">
+                       <label class="form-label">Vendor Category <span class="text-danger">*</span></label>
+                       <select class="form-select select2" name="vendor_category_id" id="vendor_category_id" required>
+                           <option value="">Select Category</option>
+                           @foreach($categories as $cat)
+                               <option value="{{ $cat->id }}" {{ (!empty($vendor) && $vendor->vendor_category_id == $cat->id) ? 'selected' : '' }}>{{ $cat->name }}</option>
+                           @endforeach
+                       </select>
+                   </div>
+
+                   <div class="col-md-6">
                        <label class="form-label">Status <span class="text-danger">*</span></label>
                        <select class="form-select select2" name="status" id="status" required>
                            <option value="Pending" {{ (!empty($vendor) && $vendor->status == 'Pending') ? 'selected' : '' }}>Pending</option>
@@ -118,9 +151,20 @@
 
                    <div class="col-md-6">
                        <label class="form-label">Profile Image</label>
-                       <input type="file" class="form-control" name="profile_image" id="profile_image" {{ empty($vendor->profile_image) ? 'required' : '' }} accept=".jpg,.jpeg,.png" onchange="previewImage(this,'profile_imagePreview')">
+                       <input type="file" class="form-control" name="profile_image" id="profile_image" {{ empty($vendor->profile_image) ? 'required' : '' }} accept=".jpg,.jpeg,.png,.webp" onchange="previewImage(this,'profile_imagePreview')">
                        <div class="mt-2">
                            <img id="profile_imagePreview" src="{{ !empty($vendor->profile_image) ? asset($vendor->profile_image) : '' }}" style="max-height:60px; border-radius:5px; {{ empty($vendor->profile_image) ? 'display:none;' : '' }}">
+                       </div>
+                   </div>
+
+                   <div class="col-md-6">
+                       <label class="form-label">KYC Proof Image / Document @if(empty($vendor->proof_image))<span class="text-danger">*</span>@endif</label>
+                       <input type="file" class="form-control" name="proof_image" id="proof_image" {{ empty($vendor->proof_image) ? 'required' : '' }} accept=".jpg,.jpeg,.png,.webp" onchange="previewImage(this,'proof_imagePreview')">
+                       <div class="mt-2">
+                           @if(!empty($vendor->proof_image))
+                               <a href="{{ asset($vendor->proof_image) }}" target="_blank" class="btn btn-sm btn-outline-info mb-1"><i class="fas fa-eye me-1"></i> View Current Proof</a><br>
+                           @endif
+                           <img id="proof_imagePreview" src="{{ !empty($vendor->proof_image) ? asset($vendor->proof_image) : '' }}" style="max-height:60px; border-radius:5px; {{ empty($vendor->proof_image) ? 'display:none;' : '' }}">
                        </div>
                    </div>
 
@@ -152,6 +196,9 @@
            
            if($('#profile_image')[0].files.length){
                formData.append('profile_image', $('#profile_image')[0].files[0]);
+           }
+           if($('#proof_image')[0].files.length){
+               formData.append('proof_image', $('#proof_image')[0].files[0]);
            }
    
            $.ajax({

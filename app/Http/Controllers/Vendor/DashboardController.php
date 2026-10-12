@@ -14,6 +14,9 @@ class DashboardController extends Controller
     {
         $page_title = 'Dashboard';
         $vendor = Auth::guard('vendor')->user();
+        if ($vendor) {
+            $vendor->load('category');
+        }
         
         $totalSurveys = CustomerSurvey::where('vendor_id', $vendor->id)->count();
         $todaySurveys = CustomerSurvey::where('vendor_id', $vendor->id)->whereDate('survey_date', Carbon::today())->count();

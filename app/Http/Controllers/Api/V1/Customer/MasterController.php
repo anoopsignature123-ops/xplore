@@ -17,6 +17,9 @@ use App\Models\HelpQuestion;
 use App\Models\HelpQuery;
 use App\Models\CourseEnrollment;
 use App\Models\Cms;
+use App\Models\WebSettings;
+use App\Models\VendorCategory;
+use App\Models\Vendor;
 
 
 class MasterController extends Controller
@@ -38,11 +41,26 @@ class MasterController extends Controller
  
         $perPage     = $request->per_page_record ?? 10;
         $page        = $request->page_no ?? 1;
+
+        $settings    = WebSettings::first();
+        $bookingPct  = (float) ($settings->survey_booking_percentage ?? 40.00);
  
-        $query = Survey::select('id', 'name','short_detail','amount','image')->where('status', 'Active')->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page); 
+        $query = Survey::select('id', 'name', 'short_detail', 'amount', 'discount_amount', 'final_amount', 'image')->where('status', 'Active')->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page); 
     
-        $data = collect($query->items())->map(function ($record) { 
-            $record->image_url = !empty($record->image)? asset($record->image): null;
+        $data = collect($query->items())->map(function ($record) use ($bookingPct) { 
+            $amount = (float) ($record->amount ?? 0);
+            $discountAmount = (float) ($record->discount_amount ?? 0);
+            $finalAmount = (float) ($record->final_amount ?? max(0, $amount - $discountAmount));
+            $advanceAmount = round(($finalAmount * $bookingPct) / 100, 2);
+            $remainingAmount = max(0, $finalAmount - $advanceAmount);
+
+            $record->amount = $amount;
+            $record->discount_amount = $discountAmount;
+            $record->final_amount = $finalAmount;
+            $record->booking_percentage = $bookingPct;
+            $record->advance_amount = $advanceAmount;
+            $record->remaining_amount = $remainingAmount;
+            $record->image_url = !empty($record->image) ? asset($record->image) : null;
             return $record;
         });
  
@@ -374,6 +392,73 @@ public function faqList(Request $request)
             'status'  => true,
             'message' => 'CMS fetched successfully',
             'data'    => $cms
+        ], 200);
+    }
+
+    public function vendorCategoryList(Request $request)
+    {
+        $categories = VendorCategory::where('status', 'Active')
+            ->orderBy('name', 'asc')
+            ->get(['id', 'name', 'status']);
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Vendor categories fetched successfully',
+            'data'    => $categories
+        ], 200);
+    }
+
+    public function vendorList(Request $request)
+    {
+        $query = Vendor::with('category')->where('status', 'Active');
+
+        if ($request->filled('vendor_category_id')) {
+            $query->where('vendor_category_id', $request->vendor_category_id);
+        }
+
+        if ($request->filled('vendor_type')) {
+            $query->where('vendor_type', $request->vendor_type);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email_id', 'like', "%{$search}%")
+                  ->orWhere('phone_no', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->per_page_record ?? 15;
+        $page = $request->page_no ?? 1;
+
+        $vendors = $query->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $page);
+
+        $data = collect($vendors->items())->map(function ($vendor) {
+            return [
+                'id'                   => $vendor->id,
+                'name'                 => $vendor->name,
+                'email_id'             => $vendor->email_id,
+                'phone_no'             => $vendor->phone_no,
+                'vendor_type'          => $vendor->vendor_type,
+                'vendor_category_id'   => $vendor->vendor_category_id,
+                'vendor_category_name' => $vendor->category ? $vendor->category->name : null,
+                'profile_image'        => !empty($vendor->profile_image) ? asset($vendor->profile_image) : null,
+                'gender'               => $vendor->gender,
+                'status'               => $vendor->status,
+            ];
+        });
+
+        return response()->json([
+            'status'     => true,
+            'message'    => 'Vendors fetched successfully',
+            'data'       => $data,
+            'pagination' => [
+                'total'        => $vendors->total(),
+                'current_page' => $vendors->currentPage(),
+                'last_page'    => $vendors->lastPage(),
+                'per_page'     => $vendors->perPage(),
+            ]
         ], 200);
     }
 }

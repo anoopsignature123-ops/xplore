@@ -14,6 +14,10 @@
    .select2-container--default .select2-selection--single .select2-selection__arrow {
        height: 36px !important;
    }
+   .nav-pills .nav-link.active {
+       background-color: #0d6efd !important;
+       color: #fff !important;
+   }
 </style>
 @endpush
 <div class="page-body">
@@ -36,10 +40,18 @@
          <div class="col-sm-12">
             <div class="card shadow-lg border-0 rounded-3">
                <!-- Card Header -->
-               <div class="card-header bg-light border-bottom-0 py-3 d-flex justify-content-between align-items-center rounded-top">
-                  <h3 class="mb-0 fw-bold text-primary">
-                     {{ $page_title }}
-                  </h3>
+               <div class="card-header bg-light border-bottom-0 py-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center rounded-top gap-3">
+                  <div class="d-flex align-items-center gap-3">
+                     <h3 class="mb-0 fw-bold text-primary">{{ $page_title }}</h3>
+                     <ul class="nav nav-pills" id="surveyTabs">
+                        <li class="nav-item">
+                           <button class="nav-link active fw-semibold" id="tab-assigned" data-type="assigned"><i class="fa-solid fa-list-check me-1"></i> My Assigned Surveys</button>
+                        </li>
+                        <li class="nav-item">
+                           <button class="nav-link fw-semibold" id="tab-available" data-type="available"><i class="fa-solid fa-bolt text-warning me-1"></i> Open / Available Surveys</button>
+                        </li>
+                     </ul>
+                  </div>
                   <div class="d-flex gap-2">
                      <button class="btn btn-outline-secondary btn-sm"
                         type="button"
@@ -140,9 +152,41 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script type="text/javascript">
+   var currentType = 'assigned';
+
+   function acceptSurvey(id) {
+       if(!confirm('Are you sure you want to accept this survey? It will be assigned to you immediately.')) return;
+       $.ajax({
+           url: "{{ route('vendor.my-survey.accept') }}",
+           type: "POST",
+           data: {
+               _token: "{{ csrf_token() }}",
+               id: id
+           },
+           success: function(response) {
+               if (response.status) {
+                   toastr.success(response.message);
+                   $('#myTable').DataTable().ajax.reload(null, false);
+               } else {
+                   toastr.error(response.message);
+               }
+           },
+           error: function(xhr) {
+               toastr.error(xhr.responseJSON?.message || 'Failed to accept survey.');
+           }
+       });
+   }
+
    $(document).ready(function() {
        // Initialize Select2
        $('.select2').select2({ width: '100%' });
+
+       $('#surveyTabs button').on('click', function() {
+           $('#surveyTabs button').removeClass('active');
+           $(this).addClass('active');
+           currentType = $(this).data('type');
+           table.ajax.reload();
+       });
 
        // If filters are passed from dashboard, auto-expand filters
        @if($status_filter || $date_filter == 'today')
@@ -184,6 +228,7 @@
            ajax: {
                url: "{{ route('vendor.my-survey.getRecords') }}",
                data: function (d) {
+                    d.type = currentType;
                     d.from_date = $('#filter_from_date').val();
                     d.to_date = $('#filter_to_date').val();
                     d.customer_id = $('#filter_customer_id').val();
@@ -206,7 +251,7 @@
                { data: 'amount', name: 'amount', title: 'Amount' },
                { data: 'location_details', name: 'address', title: 'Location Details' },
                { data: 'status', name: 'status', title: 'Status' },
-               { data: 'assigned_date', name: 'assigned_at', title: 'Assigned At' },
+               { data: 'assigned_date', name: 'assigned_at', title: 'Time / Status' },
                { data: 'action', name: 'action', title: 'Action', orderable: false, searchable: false }
            ]
        });
