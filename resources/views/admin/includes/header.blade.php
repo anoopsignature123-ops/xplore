@@ -102,6 +102,19 @@
     .toast-error {
         color: #fff !important;
     }
+
+    /* ── GLOBAL FIX: Checkbox & Radio label text always visible ── */
+    .form-check-label {
+        color: #212529 !important;
+        cursor: pointer;
+    }
+    .form-check-label i {
+        color: #308e87 !important;
+    }
+    .form-check .form-check-input:checked ~ .form-check-label {
+        color: #0f172a !important;
+        font-weight: 600;
+    }
     </style>
 
 

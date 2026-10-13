@@ -5,13 +5,11 @@ namespace App\Http\Controllers\Api\V1\Customer;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BuildCategory;
-use App\Models\Builder;
-use App\Models\BuilderInquiry;
-use App\Models\BuilderReview;
+use App\Models\BuilderServiceType;
+use App\Models\BuildService;
+use App\Models\BuildServiceBooking;
 use App\Models\Slider;
 use App\Http\Resources\V1\Customer\BuildCategoryResource;
-use App\Http\Resources\V1\Customer\BuilderResource;
-use App\Http\Resources\V1\Customer\BuilderDetailResource;
 use App\Http\Resources\V1\Customer\EquipmentSliderResource;
 use Illuminate\Support\Facades\Validator;
 use Throwable;
@@ -20,6 +18,8 @@ class BuildController extends Controller
 {
     /**
      * Build Module Home Screen API
+     * POST api/v1/build-home
+     * Returns: sliders, categories, service_types, featured_services
      */
     public function home(Request $request)
     {
@@ -31,23 +31,36 @@ class BuildController extends Controller
                 ->orderByDesc('id')
                 ->get();
 
-            // Categories
+            // Categories (main filter tabs in app)
             $categories = BuildCategory::where('status', 1)->orderBy('id')->get();
 
-            // Featured/Top Rated Builders
-            $featuredBuilders = Builder::with(['category', 'services'])
+            // Featured/Top Rated Services (latest 6)
+            $featuredServices = BuildService::with('category')
                 ->where('status', 1)
                 ->orderByDesc('rating')
-                ->take(10)
-                ->get();
+                ->take(6)
+                ->get()
+                ->map(fn($s) => [
+                    'id' => $s->id,
+                    'category_name' => $s->category?->name ?? '',
+                    'title' => $s->title,
+                    'short_desc' => $s->short_desc ?? '',
+                    'price' => (float) $s->price,
+                    'price_type' => $s->price_type,
+                    'price_label' => $s->price_label,
+                    'duration' => $s->duration ?? '',
+                    'rating' => (float) $s->rating,
+                    'total_reviews' => (int) $s->total_reviews,
+                    'tags' => $s->tags ?? [],
+                ]);
 
             return response()->json([
                 'status'  => true,
                 'message' => 'Build home data fetched successfully',
                 'data'    => [
-                    'sliders'           => EquipmentSliderResource::collection($sliders),
-                    'categories'        => BuildCategoryResource::collection($categories),
-                    'featured_builders' => BuilderResource::collection($featuredBuilders),
+                    'sliders' => EquipmentSliderResource::collection($sliders),
+                    'categories' => BuildCategoryResource::collection($categories),
+                    'featured_services' => $featuredServices,
                 ],
             ], 200);
 
@@ -61,6 +74,7 @@ class BuildController extends Controller
 
     /**
      * Categories List API
+     * POST api/v1/build-categories
      */
     public function categories(Request $request)
     {
@@ -82,217 +96,242 @@ class BuildController extends Controller
     }
 
     /**
-     * Builders List API with Filters & Search
+     * Service Types List API
+     * GET|POST api/v1/build-service-types
      */
-    public function builders(Request $request)
+    public function serviceTypes(Request $request)
+    {
+        try {
+            $types = BuilderServiceType::where('status', 1)
+                ->orderBy('name')
+                ->get()
+                ->map(fn($t) => [
+                    'id' => (int) $t->id,
+                    'name' => (string) $t->name,
+                    'icon' => (string) ($t->icon ?? ''),
+                ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Service types fetched successfully',
+                'data' => $types,
+            ], 200);
+
+        } catch (Throwable $e) {
+            return response()->json(['status' => false, 'message' => 'Failed to fetch service types.'], 500);
+        }
+    }
+
+    /**
+     * Build Service List API — App Screen 1 (category filter tabs + service cards)
+     * POST api/v1/build-service-list
+     * Params: category_id (optional), search (optional), per_page (optional)
+     */
+    public function serviceList(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'category_id'   => 'nullable|integer|exists:build_categories,id',
-                'category_slug' => 'nullable|string|max:100',
-                'location'      => 'nullable|string|max:100',
-                'search'        => 'nullable|string|max:100',
-                'per_page'      => 'nullable|integer|min:1|max:100',
+                'category_id' => 'nullable|integer|exists:build_categories,id',
+                'search' => 'nullable|string|max:100',
+                'per_page' => 'nullable|integer|min:1|max:100',
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'status'  => false,
-                    'message' => $validator->errors()->first(),
-                ], 422);
+                return response()->json(['status' => false, 'message' => $validator->errors()->first()], 422);
             }
 
-            $query = Builder::with(['category', 'services'])->where('status', 1);
+            $query = BuildService::with('category')->where('status', 1);
 
             if ($request->filled('category_id')) {
                 $query->where('category_id', $request->category_id);
             }
 
-            if ($request->filled('category_slug')) {
-                $slug = trim($request->category_slug);
-                $query->whereHas('category', function ($q) use ($slug) {
-                    $q->where('slug', $slug);
-                });
-            }
-
-            if ($request->filled('location')) {
-                $location = trim($request->location);
-                $query->where('location', 'like', "%{$location}%");
-            }
-
             if ($request->filled('search')) {
-                $search = strip_tags(trim($request->search));
+                $search = trim($request->search);
                 $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('firm_name', 'like', "%{$search}%")
-                      ->orWhere('location', 'like', "%{$search}%");
+                    $q->where('title', 'like', "%{$search}%")
+                        ->orWhere('short_desc', 'like', "%{$search}%");
                 });
             }
 
-            $builders = $query->orderByDesc('id')->paginate($request->per_page ?? 15);
+            $services = $query->orderBy('sort_order')->orderByDesc('id')
+                ->paginate($request->per_page ?? 15);
+
+            $items = $services->getCollection()->map(fn($s) => [
+                'id' => $s->id,
+                'category_id' => $s->category_id,
+                'category_name' => $s->category?->name ?? '',
+                'title' => $s->title,
+                'short_desc' => $s->short_desc ?? '',
+                'price' => (float) $s->price,
+                'price_type' => $s->price_type,
+                'price_label' => $s->price_label,
+                'duration' => $s->duration ?? '',
+                'rating' => (float) $s->rating,
+                'total_reviews' => (int) $s->total_reviews,
+                'tags' => $s->tags ?? [],
+            ]);
 
             return response()->json([
                 'status'  => true,
-                'message' => 'Builders fetched successfully',
+                'message' => 'Build services fetched successfully',
                 'data'    => [
-                    'current_page' => $builders->currentPage(),
-                    'last_page'    => $builders->lastPage(),
-                    'total'        => $builders->total(),
-                    'items'        => BuilderResource::collection($builders->getCollection()),
+                    'current_page' => $services->currentPage(),
+                    'last_page' => $services->lastPage(),
+                    'total' => $services->total(),
+                    'items' => $items,
                 ],
             ], 200);
 
         } catch (Throwable $e) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Failed to fetch builders list.',
-            ], 500);
+            return response()->json(['status' => false, 'message' => 'Failed to fetch services.'], 500);
         }
     }
 
     /**
-     * Builder Detailed Profile API
+     * Build Service Detail API — App Screen 3/4/5
+     * POST api/v1/build-service-detail
+     * Params: service_id (required)
      */
-    public function detail(Request $request)
+    public function serviceDetail(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'builder_id' => 'required_without:builder_slug|nullable|integer|exists:builders,id',
-                'builder_slug' => 'required_without:builder_id|nullable|string|exists:builders,slug',
+                'service_id' => 'required|integer|exists:build_services,id',
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'status'  => false,
-                    'message' => $validator->errors()->first(),
-                ], 422);
+                return response()->json(['status' => false, 'message' => $validator->errors()->first()], 422);
             }
 
-            $query = Builder::with(['category', 'services', 'certifications', 'serviceAreas', 'portfolios', 'completedProjects', 'reviews']);
+            $service = BuildService::with(['category', 'faqs'])->findOrFail($request->service_id);
 
-            if ($request->filled('builder_id')) {
-                $builder = $query->findOrFail($request->builder_id);
-            } else {
-                $builder = $query->where('slug', $request->builder_slug)->firstOrFail();
-            }
+            $faqs = $service->faqs->map(fn($f) => [
+                'question' => $f->question,
+                'answer' => $f->answer,
+            ]);
 
             return response()->json([
                 'status'  => true,
-                'message' => 'Builder profile details fetched successfully',
-                'data'    => new BuilderDetailResource($builder),
+                'message' => 'Service detail fetched successfully',
+                'data' => [
+                    'id' => $service->id,
+                    'category_id' => $service->category_id,
+                    'category_name' => $service->category?->name ?? '',
+                    'title' => $service->title,
+                    'short_desc' => $service->short_desc ?? '',
+                    'price' => (float) $service->price,
+                    'price_type' => $service->price_type,
+                    'price_label' => $service->price_label,
+                    'duration' => $service->duration ?? '',
+                    'rating' => (float) $service->rating,
+                    'total_reviews' => (int) $service->total_reviews,
+                    'tags' => $service->tags ?? [],
+                    'overview' => $service->overview ?? '',
+                    'deliverables' => $service->deliverables ?? [],
+                    'what_you_get' => $service->what_you_get ?? [],
+                    'execution_steps' => $service->execution_steps ?? [],
+                    'faqs' => $faqs,
+                ],
             ], 200);
 
         } catch (Throwable $e) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Builder profile not found.',
-            ], 404);
+            return response()->json(['status' => false, 'message' => 'Service not found.'], 404);
         }
     }
 
     /**
-     * Submit Customer Inquiry (Call / Chat Request) API
+     * Book a Build Service — App Screen 2
+     * POST api/v1/build-book-service
+     * Body: service_id, site_location, contact_mobile, target_timeline, budget_range, project_notes
      */
-    public function submitInquiry(Request $request)
+    public function bookService(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'builder_id'     => 'required|integer|exists:builders,id',
-                'customer_name'  => 'required|string|max:255',
-                'customer_phone' => 'required|string|max:20',
-                'customer_email' => 'nullable|email|max:255',
-                'message'        => 'nullable|string|max:1000',
-                'inquiry_type'   => 'nullable|in:call,chat,general',
+                'service_id' => 'required|integer|exists:build_services,id',
+                'site_location' => 'required|string|max:500',
+                'contact_mobile' => 'required|string|max:20',
+                'target_timeline' => 'nullable|string|max:100',
+                'budget_range' => 'nullable|string|max:100',
+                'project_notes' => 'nullable|string|max:2000',
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'status'  => false,
-                    'message' => $validator->errors()->first(),
-                ], 422);
+                return response()->json(['status' => false, 'message' => $validator->errors()->first()], 422);
             }
 
             $user = $request->user();
 
-            $inquiry = BuilderInquiry::create([
-                'builder_id'     => $request->builder_id,
-                'customer_id'    => $user ? $user->id : null,
-                'customer_name'  => strip_tags(trim($request->customer_name)),
-                'customer_phone' => strip_tags(trim($request->customer_phone)),
-                'customer_email' => strip_tags(trim($request->customer_email ?? '')),
-                'message'        => strip_tags(trim($request->message ?? '')),
-                'inquiry_type'   => $request->inquiry_type ?? 'call',
-                'status'         => 'pending',
+            $booking = BuildServiceBooking::create([
+                'build_service_id' => $request->service_id,
+                'customer_id' => $user?->id,
+                'customer_name' => $user?->name ?? '',
+                'site_location' => strip_tags(trim($request->site_location)),
+                'contact_mobile' => strip_tags(trim($request->contact_mobile)),
+                'target_timeline' => $request->target_timeline ?? '',
+                'budget_range' => $request->budget_range ?? '',
+                'project_notes' => strip_tags(trim($request->project_notes ?? '')),
+                'status' => 'pending',
             ]);
+
+            $service = BuildService::find($request->service_id);
 
             return response()->json([
                 'status'  => true,
-                'message' => 'Inquiry submitted successfully! The professional will contact you soon.',
+                'message' => 'Service request submitted successfully! Our admin team will verify your project and assign a verified professional.',
                 'data'    => [
-                    'inquiry_id' => $inquiry->id,
-                    'status'     => $inquiry->status,
+                    'booking_id' => $booking->id,
+                    'service_title' => $service?->title ?? '',
+                    'status' => $booking->status,
+                    'submitted_at' => $booking->created_at->toISOString(),
                 ],
             ], 201);
 
         } catch (Throwable $e) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Failed to submit inquiry.',
-            ], 500);
+            return response()->json(['status' => false, 'message' => 'Failed to submit booking request.'], 500);
         }
     }
 
     /**
-     * Add Customer Review API
+     * My Build Bookings — Customer's booking history
+     * GET|POST api/v1/my-build-bookings
      */
-    public function addReview(Request $request)
+    public function myBuildBookings(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'builder_id'    => 'required|integer|exists:builders,id',
-                'customer_name' => 'required|string|max:255',
-                'rating'        => 'required|numeric|min:1|max:5',
-                'review_text'   => 'required|string|max:1000',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'status'  => false,
-                    'message' => $validator->errors()->first(),
-                ], 422);
-            }
-
             $user = $request->user();
-
-            $review = BuilderReview::create([
-                'builder_id'     => $request->builder_id,
-                'customer_id'    => $user ? $user->id : null,
-                'customer_name'  => strip_tags(trim($request->customer_name)),
-                'customer_image' => $user ? asset($user->profile_image ?? '') : null,
-                'rating'         => $request->rating,
-                'review_text'    => strip_tags(trim($request->review_text)),
-                'status'         => true,
-            ]);
-
-            // Update average rating on Builder profile
-            $builder = Builder::find($request->builder_id);
-            if ($builder) {
-                $avgRating = BuilderReview::where('builder_id', $builder->id)->where('status', 1)->avg('rating');
-                $builder->rating = round($avgRating, 1);
-                $builder->save();
+            if (!$user) {
+                return response()->json(['status' => false, 'message' => 'Unauthorized.'], 401);
             }
+
+            $bookings = BuildServiceBooking::with('service.category')
+                ->where('customer_id', $user->id)
+                ->orderByDesc('id')
+                ->get()
+                ->map(fn($b) => [
+                    'booking_id' => $b->id,
+                    'service_id' => $b->build_service_id,
+                    'service_title' => $b->service?->title ?? '',
+                    'category_name' => $b->service?->category?->name ?? '',
+                    'site_location' => $b->site_location,
+                    'contact_mobile' => $b->contact_mobile,
+                    'target_timeline' => $b->target_timeline ?? '',
+                    'budget_range' => $b->budget_range ?? '',
+                    'project_notes' => $b->project_notes ?? '',
+                    'status' => $b->status,
+                    'admin_notes' => $b->admin_notes ?? '',
+                    'submitted_at' => $b->created_at->toISOString(),
+                ]);
 
             return response()->json([
                 'status'  => true,
-                'message' => 'Review submitted successfully!',
-                'data'    => $review,
-            ], 201);
+                'message' => 'Your build bookings fetched successfully',
+                'data' => $bookings,
+            ], 200);
 
         } catch (Throwable $e) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Failed to submit review.',
-            ], 500);
+            return response()->json(['status' => false, 'message' => 'Failed to fetch bookings.'], 500);
         }
     }
 }

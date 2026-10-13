@@ -131,19 +131,20 @@ $adminUser = auth()->user();
          </li>
 
          <!-- Xplore Build -->
-         <li class="sidebar-list {{ in_array($segment_two, ['build-category', 'builder', 'build-inquiry']) ? 'active' : '' }}">
+         <li class="sidebar-list {{ in_array($segment_two, ['build-category', 'builder-service-type', 'build-service', 'build-booking']) ? 'active' : '' }}">
             <a class="sidebar-link" href="javascript:void(0)">
                <span class="menu-icon-box"><i class="fas fa-city"></i></span>
                <h6>Xplore Build</h6>
                <i class="fas fa-chevron-right ms-auto"></i>
             </a>
-            <ul class="sidebar-submenu" style="{{ in_array($segment_two, ['build-category', 'builder', 'build-inquiry']) ? 'display:block;' : '' }}">
-               <li><a class="{{ $segment_two == 'build-category' ? 'active' : '' }}" href="{{ route('admin.build-category.list') }}">Build Categories</a></li>
-               <li><a class="{{ $segment_two == 'builder' && $segment_three == 'list' ? 'active' : '' }}" href="{{ route('admin.builder.list') }}">Builders List</a></li>
-               <li><a class="{{ $segment_two == 'builder' && $segment_three == 'add' ? 'active' : '' }}" href="{{ route('admin.builder.add') }}">Add Builder</a></li>
-               <li><a class="{{ $segment_two == 'build-inquiry' ? 'active' : '' }}" href="{{ route('admin.build-inquiry.list') }}">Customer Inquiries</a></li>
+            <ul class="sidebar-submenu" style="{{ in_array($segment_two, ['build-category', 'builder-service-type', 'build-service', 'build-booking']) ? 'display:block;' : '' }}">
+               <li><a class="{{ $segment_two == 'build-category' ? 'active' : '' }}" href="{{ route('admin.build-category.list') }}">Categories</a></li>
+               <li><a class="{{ $segment_two == 'builder-service-type' ? 'active' : '' }}" href="{{ route('admin.builder-service-type.list') }}">Service Types</a></li>
+               <li><a class="{{ $segment_two == 'build-service' ? 'active' : '' }}" href="{{ route('admin.build-service.list') }}"><i class="fas fa-layer-group me-1 text-primary"></i>Services</a></li>
+               <li><a class="{{ $segment_two == 'build-booking' ? 'active' : '' }}" href="{{ route('admin.build-booking.list') }}"><i class="fas fa-calendar-check me-1 text-success"></i>Bookings</a></li>
             </ul>
          </li>
+
 
          <!-- Vendors -->
          @canany(['vendor-list', 'vendor-add'])

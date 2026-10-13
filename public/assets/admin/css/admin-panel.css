@@ -36,6 +36,25 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+/* Fix: Theme sometimes sets label color to white/transparent — force visible dark text */
+.form-check-label {
+    color: #1e293b !important;
+    cursor: pointer;
+}
+.form-check-label i {
+    color: var(--ap-primary) !important;
+}
+.form-check .form-check-input:checked ~ .form-check-label {
+    color: #0f172a !important;
+    font-weight: 600;
+}
+/* Service type checkbox grid styling */
+.service-type-grid .form-check-label {
+    color: #1e293b !important;
+    font-size: 13px;
+    font-weight: 500;
+}
+
 .page-body {
     background-color: #f8fafc !important;
     min-height: calc(100vh - 72px);

@@ -105,12 +105,18 @@ Route::prefix('v1')->group(function () {
             Route::post('toggle-wishlist', [EquipmentController::class, 'toggleWishlist']);
         });
 
-        // Xplore Build Module APIs
+        // Xplore Build Module APIs — Services Only
         Route::post('build-home', [BuildController::class, 'home']);
         Route::post('build-categories', [BuildController::class, 'categories']);
-        Route::post('build-builders', [BuildController::class, 'builders']);
-        Route::post('build-detail', [BuildController::class, 'detail']);
-        Route::post('build-submit-inquiry', [BuildController::class, 'submitInquiry']);
+        Route::match(['get', 'post'], 'build-service-types', [BuildController::class, 'serviceTypes']);
+
+        // Build Services
+        Route::post('build-service-list', [BuildController::class, 'serviceList']);
+        Route::post('build-service-detail', [BuildController::class, 'serviceDetail']);
+        Route::post('build-book-service', [BuildController::class, 'bookService']);
+        Route::match(['get', 'post'], 'my-build-bookings', [BuildController::class, 'myBuildBookings']);
+
+
         // Contact Us APIs
         Route::match(['get', 'post'], 'contact-types', [ContactUsController::class, 'getContactTypes']);
         Route::post('submit-contact-us', [ContactUsController::class, 'submitContactUs']);

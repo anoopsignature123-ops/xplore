@@ -37,12 +37,9 @@ use App\Http\Controllers\Admin\CmsController;
 use App\Http\Controllers\Admin\EquipmentController;
 use App\Http\Controllers\Admin\EquipmentBookingController;
 use App\Http\Controllers\Admin\BuildCategoryController;
-use App\Http\Controllers\Admin\BuilderController;
-use App\Http\Controllers\Admin\BuilderInquiryController;
-use App\Http\Controllers\Builder\Auth\LoginController as BuilderLoginController;
-use App\Http\Controllers\Builder\DashboardController as BuilderDashboardController;
-use App\Http\Controllers\Builder\ProfileController as BuilderProfileController;
-use App\Http\Controllers\Builder\InquiryController as BuilderPortalInquiryController;
+use App\Http\Controllers\Admin\BuilderServiceTypeController;
+use App\Http\Controllers\Admin\BuildServiceController;
+use App\Http\Controllers\Admin\BuildServiceBookingController;
 use App\Http\Controllers\PageController;
 
 /*
@@ -515,21 +512,34 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/delete/{id}', [BuildCategoryController::class, 'delete'])->name('delete');
         });
 
-        Route::prefix('builder')->name('builder.')->group(function () {
-            Route::get('/list', [BuilderController::class, 'index'])->name('list');
-            Route::get('/getRecords', [BuilderController::class, 'getRecords'])->name('getRecords');
-            Route::get('/add/{id?}', [BuilderController::class, 'add'])->name('add');
-            Route::post('/save', [BuilderController::class, 'save'])->name('save');
-            Route::post('/toggle-verify', [BuilderController::class, 'toggleVerify'])->name('toggleVerify');
-            Route::post('/toggle-status', [BuilderController::class, 'toggleStatus'])->name('toggleStatus');
-            Route::delete('/delete/{id}', [BuilderController::class, 'delete'])->name('delete');
+        Route::prefix('builder-service-type')->name('builder-service-type.')->group(function () {
+            Route::get('/list', [BuilderServiceTypeController::class, 'index'])->name('list');
+            Route::get('/getRecords', [BuilderServiceTypeController::class, 'getRecords'])->name('getRecords');
+            Route::get('/add/{id?}', [BuilderServiceTypeController::class, 'add'])->name('add');
+            Route::post('/save', [BuilderServiceTypeController::class, 'save'])->name('save');
+            Route::post('/toggle-status', [BuilderServiceTypeController::class, 'toggleStatus'])->name('toggleStatus');
+            Route::delete('/delete/{id}', [BuilderServiceTypeController::class, 'delete'])->name('delete');
         });
 
-        Route::prefix('build-inquiry')->name('build-inquiry.')->group(function () {
-            Route::get('/list', [BuilderInquiryController::class, 'index'])->name('list');
-            Route::get('/getRecords', [BuilderInquiryController::class, 'getRecords'])->name('getRecords');
-            Route::post('/update-status', [BuilderInquiryController::class, 'updateStatus'])->name('updateStatus');
+        // Build Services (Admin-managed service packages)
+        Route::prefix('build-service')->name('build-service.')->group(function () {
+            Route::get('/list', [BuildServiceController::class, 'index'])->name('list');
+            Route::get('/getRecords', [BuildServiceController::class, 'getRecords'])->name('getRecords');
+            Route::get('/add/{id?}', [BuildServiceController::class, 'add'])->name('add');
+            Route::post('/save', [BuildServiceController::class, 'save'])->name('save');
+            Route::post('/toggle-status', [BuildServiceController::class, 'toggleStatus'])->name('toggleStatus');
+            Route::delete('/delete/{id}', [BuildServiceController::class, 'delete'])->name('delete');
         });
+
+        // Build Service Bookings
+        Route::prefix('build-booking')->name('build-booking.')->group(function () {
+            Route::get('/list', [BuildServiceBookingController::class, 'index'])->name('list');
+            Route::get('/getRecords', [BuildServiceBookingController::class, 'getRecords'])->name('getRecords');
+            Route::get('/view/{id}', [BuildServiceBookingController::class, 'view'])->name('view');
+            Route::post('/update-status', [BuildServiceBookingController::class, 'updateStatus'])->name('updateStatus');
+        });
+
+
 
         /*
         |--------------------------------------------------------------------------
@@ -555,33 +565,3 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 });
 
-/*
-|--------------------------------------------------------------------------
-| Dedicated Builder / Contractor Portal Routes (/builder)
-|--------------------------------------------------------------------------
-*/
-Route::prefix('builder')->name('builder.')->group(function () {
-    Route::get('/login', [BuilderLoginController::class, 'login'])->name('auth.login');
-    Route::post('/login', [BuilderLoginController::class, 'checkLogin'])->name('checkLogin');
-
-    Route::middleware(['auth:builder'])->group(function () {
-        Route::get('/', [BuilderDashboardController::class, 'index'])->name('index');
-        Route::get('/logout', [BuilderLoginController::class, 'logout'])->name('logout');
-
-        // Profile & Portfolio
-        Route::get('/profile', [BuilderProfileController::class, 'index'])->name('profile');
-        Route::post('/profile/save', [BuilderProfileController::class, 'save'])->name('profile.save');
-        Route::post('/profile/change-password', [BuilderProfileController::class, 'changePassword'])->name('profile.changePassword');
-        Route::post('/profile/add-portfolio', [BuilderProfileController::class, 'addPortfolio'])->name('profile.addPortfolio');
-        Route::delete('/profile/delete-portfolio/{id}', [BuilderProfileController::class, 'deletePortfolio'])->name('profile.deletePortfolio');
-        Route::post('/profile/add-project', [BuilderProfileController::class, 'addProject'])->name('profile.addProject');
-        Route::delete('/profile/delete-project/{id}', [BuilderProfileController::class, 'deleteProject'])->name('profile.deleteProject');
-
-        // Inquiries
-        Route::prefix('inquiry')->name('inquiry.')->group(function () {
-            Route::get('/list', [BuilderPortalInquiryController::class, 'index'])->name('list');
-            Route::get('/getRecords', [BuilderPortalInquiryController::class, 'getRecords'])->name('getRecords');
-            Route::post('/update-status', [BuilderPortalInquiryController::class, 'updateStatus'])->name('updateStatus');
-        });
-    });
-});

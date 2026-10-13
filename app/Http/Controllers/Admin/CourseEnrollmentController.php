@@ -114,5 +114,5 @@ class CourseEnrollmentController extends Controller {
                 ->rawColumns(['customer_details', 'payment_status', 'status'])
                 ->make(true);
         }
-    } 
+    }
 }
